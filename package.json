@@ -1,0 +1,24 @@
+{
+  "name": "umpsapekansportfacilitybookingsystem",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mean1410/UMPSA-Sport-Facility-Booking.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mean1410/UMPSA-Sport-Facility-Booking/issues"
+  },
+  "homepage": "https://github.com/mean1410/UMPSA-Sport-Facility-Booking#readme",
+  "devDependencies": {
+    "supabase": "^2.78.1"
+  }
+}
