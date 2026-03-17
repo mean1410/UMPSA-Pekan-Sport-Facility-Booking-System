@@ -129,7 +129,7 @@ async function handleLogin() {
     sessionStorage.setItem('user_email', user.email);
     sessionStorage.setItem('user_role',  user.role);
 
-    window.location.href = '../index.html';
+    window.location.href = '../UserDashboard/UserDashboard.html';
 }
 
 // ─── FORGOT PASSWORD (check email exists) ──────────────────────────────────
