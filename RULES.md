@@ -49,21 +49,24 @@ Field        | Data Type    | Null | Key | Description
 facility_id  | INT(11)      | No   | PK  | Unique ID for the facility
 admin_id     | INT(11)      | No   | FK  | Links to Admin who manages the facility
 name         | VARCHAR(100) | No   |     | Facility Name
-type         | VARCHAR(50)  | No   |     | Category of facility
+type         | VARCHAR(50)  | No   |     | Category of facility (Indoor / Outdoor)
 status       | VARCHAR(20)  | No   |     | Status (Active/Maintenance)
+max_capacity | INT(11)      | No   |     | Maximum capacity of the facility
+location     | VARCHAR(255) | No   |     | Physical location/address of the facility
 
 **Booking Table**
 ----------------------------------------------
-Field        | Data Type    | Null | Key | Description
--------------|--------------|------|-----|---------------------
-booking_id   | INT(11)      | No   | PK  | Unique Booking ID
-user_id      | INT(11)      | No   | FK  | Links to User Table
-facility_id  | INT(11)      | No   | FK  | Links to Facility Table
-admin_id     | INT(11)      | Yes  | FK  | Links to Admin (if cancelled by admin)
-date         | DATE         | No   |     | Selected booking date
-time_slot    | VARCHAR(50)  | No   |     | Selected time slot
-purpose      | TEXT         | No   |     | Event purpose
-status       | VARCHAR(20)  | No   |     | Confirmed, Pending, or Cancelled
+Field             | Data Type    | Null | Key | Description
+------------------|--------------|------|-----|---------------------
+booking_id        | INT(11)      | No   | PK  | Unique Booking ID
+user_id           | INT(11)      | No   | FK  | Links to User Table
+facility_id       | INT(11)      | No   | FK  | Links to Facility Table
+admin_id          | INT(11)      | Yes  | FK  | Links to Admin (if cancelled by admin)
+date              | DATE         | No   |     | Selected booking date
+time_slot         | VARCHAR(50)  | No   |     | Selected time slot
+purpose           | TEXT         | No   |     | Event purpose
+num_of_participant| INT(11)      | No   |     | Number of participants for the event
+status            | VARCHAR(20)  | No   |     | Confirmed, Pending, or Cancelled
 
 **Schedule Table**
 ----------------------------------------------
@@ -98,5 +101,18 @@ title          | VARCHAR(255) | No   |     | Announcement Title
 content        | TEXT         | No   |     | Main content of the announcement
 date_posted    | DATETIME     | No   |     | Date and time posted
 
+
+## 5. IMPORTANT
+- Starting from dashboard we only reuse header only because footer stopped at auth pages. All hover animations must be same like landing page. For view make sure you maintain the 80% chrome zoom for the whole project. The profile icon if user/admin click it will show the profile dropdown menu showing logout button only.
+
+## 6. PROJECT ARCHITECTURE (APP SHELL)
+To maintain consistency and ease of development, this project uses an **App Shell Architecture** for the User and Admin Dashboards.
+- **Single Page Entry:** Instead of multiple separate HTML files for every feature (Search, Report, etc.), we use a main "Shell" (e.g., `UserDashboard.html`).
+- **Dynamic Content Swapping:** JavaScript is used to swap the content inside the `<main>` container based on sidebar navigation.
+- **Benefits:** 
+    - **Performance:** No "white flash" or slow page reloads.
+    - **Maintenance:** Changes to the Header or Sidebar only need to be made in **one** file.
+    - **Cleanliness:** Avoids duplicate folders and files for every sub-page.
+- **Workflow:** Sub-features (Search, Reports, Announcements) are built as hidden `<div>` sections or template strings and toggled by the main Shell.
 
 
