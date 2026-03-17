@@ -53,6 +53,8 @@ type         | VARCHAR(50)  | No   |     | Category of facility (Indoor / Outdoo
 status       | VARCHAR(20)  | No   |     | Status (Active/Maintenance)
 max_capacity | INT(11)      | No   |     | Maximum capacity of the facility
 location     | VARCHAR(255) | No   |     | Physical location/address of the facility
+image_url    | TEXT         | Yes  |     | Path/URL to the facility image
+created_at   | TIMESTAMPTZ  | No   |     | Auto-timestamp of creation
 
 **Booking Table**
 ----------------------------------------------
@@ -67,6 +69,7 @@ time_slot         | VARCHAR(50)  | No   |     | Selected time slot
 purpose           | TEXT         | No   |     | Event purpose
 num_of_participant| INT(11)      | No   |     | Number of participants for the event
 status            | VARCHAR(20)  | No   |     | Confirmed, Pending, or Cancelled
+created_at        | TIMESTAMPTZ  | No   |     | Auto-timestamp of when booking was made
 
 **Schedule Table**
 ----------------------------------------------
