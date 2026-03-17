@@ -32,13 +32,14 @@ async function handleRegister() {
     const email    = document.getElementById('registerEmail').value.trim();
     const pass     = document.getElementById('registerPassword').value;
     const confirm  = document.getElementById('registerConfirmPassword').value;
+    const role     = document.getElementById('registerRole').value;
     const errorEl  = 'registerError';
     const successEl = 'registerSuccess';
 
     hideMessage(errorEl);
     hideMessage(successEl);
 
-    if (!email || !pass || !confirm) {
+    if (!email || !pass || !confirm || !role) {
         return showError(errorEl, 'All fields are required.');
     }
     if (!email.endsWith('@adab.umpsa.edu.my') && !email.endsWith('@umpsa.edu.my')) {
@@ -62,7 +63,6 @@ async function handleRegister() {
     if (existing)  return showError(errorEl, 'This email is already registered.');
 
     const hashedPass = await hashPassword(pass);
-    const role = email.endsWith('@adab.umpsa.edu.my') ? 'student' : 'staff';
 
     const { error: insertError } = await db
         .from('User')
