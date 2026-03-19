@@ -47,14 +47,14 @@ role         | VARCHAR(20)  | No   |     | Administrative role
 Field        | Data Type    | Null | Key | Description
 -------------|--------------|------|-----|---------------------
 facility_id  | INT(11)      | No   | PK  | Unique ID for the facility
-admin_id     | INT(11)      | No   | FK  | Links to Admin who manages the facility
+admin_id     | INT(11)      | No   | FK  | Links to Admin Table
 name         | VARCHAR(100) | No   |     | Facility Name
 type         | VARCHAR(50)  | No   |     | Category of facility (Indoor / Outdoor)
 status       | VARCHAR(20)  | No   |     | Available / In Maintenance
 max_capacity | INT(11)      | No   |     | Maximum capacity of the facility
 location     | VARCHAR(255) | No   |     | Physical location/address of the facility
 image_url    | TEXT         | Yes  |     | Path/URL to the facility image
-created_at   | TIMESTAMPTZ  | No   |     | Auto-timestamp of creation
+created_at   | TIMESTAMPTZ  | Yes  |     | Auto-timestamp of creation
 
 **Booking Table**
 ----------------------------------------------
@@ -63,13 +63,15 @@ Field             | Data Type    | Null | Key | Description
 booking_id        | INT(11)      | No   | PK  | Unique Booking ID
 user_id           | INT(11)      | No   | FK  | Links to User Table
 facility_id       | INT(11)      | No   | FK  | Links to Facility Table
-admin_id          | INT(11)      | Yes  | FK  | Links to Admin (if cancelled by admin)
-date              | DATE         | No   |     | Selected booking date
-time_slot         | VARCHAR(50)  | No   |     | Selected time slot
+admin_id          | INT(11)      | Yes  | FK  | Links to Admin Table (if managed by admin)
+date              | DATE         | No   |     | Start date of the booking
+end_date          | DATE         | Yes  |     | End date of the booking (for multi-day range)
+time_slot         | VARCHAR(50)  | No   |     | Selected time range (e.g., '10:00 am - 12:00 pm')
 purpose           | TEXT         | No   |     | Event purpose
-num_of_participant| INT(11)      | No   |     | Number of participants for the event
+num_of_participant| INT(11)      | No   |     | Number of participants
 status            | VARCHAR(20)  | No   |     | Confirmed, Pending, or Cancelled
-created_at        | TIMESTAMPTZ  | No   |     | Auto-timestamp of when booking was made
+invoice_number    | TEXT         | Yes  |     | Unique Invoice Number
+created_at        | TIMESTAMPTZ  | Yes  |     | Auto-timestamp of creation
 
 **Schedule Table**
 ----------------------------------------------
@@ -89,10 +91,22 @@ Field           | Data Type    | Null | Key | Description
 report_id       | INT(11)      | No   | PK  | Unique Report ID
 user_id         | INT(11)      | No   | FK  | Links to User Table
 facility_id     | INT(11)      | No   | FK  | Links to Facility Table
-admin_id        | INT(11)      | Yes  | FK  | Links to Admin (who reviews the report)
+admin_id        | INT(11)      | Yes  | FK  | Links to Admin Table
 issue_description| TEXT        | No   |     | Description of the damage/issue
 image_proof     | VARCHAR(255) | Yes  |     | Path/URL to image evidence
 status          | VARCHAR(20)  | No   |     | Status (Pending/Resolved)
+
+**Facility_Closure Table**
+----------------------------------------------
+Field          | Data Type    | Null | Key | Description
+---------------|--------------|------|-----|---------------------
+closure_id     | INT(11)      | No   | PK  | Unique Closure ID
+facility_id    | INT(11)      | No   | FK  | Links to Facility Table
+admin_id       | INT(11)      | Yes  | FK  | Admin who closed it
+date           | DATE         | No   |     | Specific Date of closure
+time_slot      | VARCHAR(50)  | Yes  |     | Specific time
+reason         | TEXT         | Yes  |     | Reason for closure
+created_at     | TIMESTAMPTZ  | Yes  |     | Auto-timestamp of creation
 
 **Announcement Table**
 ----------------------------------------------
@@ -104,6 +118,7 @@ title          | VARCHAR(255) | No   |     | Announcement Title
 content        | TEXT         | No   |     | Main content of the announcement
 date_posted    | DATETIME     | No   |     | Date and time posted
 
+if you update supabase pls update this table too but ensure data type stay same style
 
 ## 5. IMPORTANT
 - Starting from dashboard we only reuse header only because footer stopped at auth pages. All hover animations must be same like landing page. For view make sure you maintain the 80% chrome zoom for the whole project. The profile icon if user/admin click it will show the profile dropdown menu showing logout button only.
@@ -119,3 +134,21 @@ To maintain consistency and ease of development, this project uses an **App Shel
 - **Workflow:** Sub-features (Search, Reports, Announcements) are built as hidden `<div>` sections or template strings and toggled by the main Shell.
 
 
+
+## 7. SCHEDULE & AVAILABILITY LOGIC
+The 'Weekly Availability' grid status is determined by checking three layers in order:
+
+1. **Weekly Schedule (Fixed Hours)**:
+   - Defined in the 'Schedule' table (e.g., 10:00 AM - 06:00 PM).
+   - If a slot choice (e.g., 9:00 AM) is outside these hours or the day is set to is_available = 0, it is 'Close' (Dark Red).
+
+2. **Facility Closures (Ad-hoc)**:
+   - Defined in the 'Facility_Closure' table for specific dates/times (e.g., Maintenance on Jan 3rd).
+   - If a matching record exists, the slot is 'Close' (Dark Red).
+
+3. **Confirmed Bookings**:
+   - Defined in the 'Booking' table.
+   - If a 'Confirmed' booking exists for that date/time, the slot is 'Booked' (Teal).
+
+4. **Available**:
+   - If a slot is within scheduled hours, NOT closed by admin, and NOT booked, it is 'Available' (Light Gray).

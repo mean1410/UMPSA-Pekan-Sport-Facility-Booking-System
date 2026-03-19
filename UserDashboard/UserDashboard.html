@@ -195,14 +195,13 @@
                         <!-- Table -->
                         <div class="p-6 flex-1 flex flex-col h-[400px]">
                             <h3 id="booking-list-title" class="text-sm font-semibold text-primary-blue mb-4">List of confirmed booking</h3>
-                            <div class="grid grid-cols-7 gap-4 pb-3 border-b border-gray-100 text-[10px] text-gray-400 font-medium tracking-wide uppercase">
-                                <div>#</div>
+                            <div id="booking-list-header" class="grid grid-cols-6 gap-4 pb-3 border-b border-gray-100 text-[10px] text-gray-400 font-medium tracking-wide uppercase transition-all">
                                 <div>Invoice No</div>
                                 <div>Participant</div>
                                 <div>Facility/Event</div>
                                 <div>Booking Date</div>
                                 <div>Event Date</div>
-                                <div>Action</div>
+                                <div id="booking-action-col">Action</div>
                             </div>
                             <div id="booking-list-rows" class="flex-1 flex flex-col divide-y divide-gray-50 overflow-y-auto">
                                 <!-- Empty State -->
@@ -271,6 +270,248 @@
                     </div>
                 </div>
 
+                <!-- ===================== PAGE: BOOKING FORM ===================== -->
+                <div id="page-booking-form" class="p-6 hidden">
+                    <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
+                        <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                        <a href="../index.html" class="hover:text-primary-teal transition-colors">Home</a>
+                        <span>/</span>
+                        <span class="text-primary-blue font-medium">Booking</span>
+                    </div>
+
+                    <!-- Main Booking Form Card -->
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-8 mb-6">
+                        <h2 id="booking-title" class="text-primary-blue font-bold text-lg mb-8">Reserve Facility</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                            <!-- Left Column -->
+                            <div class="flex flex-col gap-6">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-primary-blue mb-1.5 uppercase">Start Date*</label>
+                                    <input id="booking-start-date" type="date" required class="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2.5 text-sm outline-none focus:bg-white focus:border-primary-teal transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-primary-blue mb-1.5 uppercase">Start Time*</label>
+                                    <select id="booking-start-time" required class="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2.5 text-sm outline-none focus:bg-white focus:border-primary-teal transition-all">
+                                        <option value="" disabled selected>Select start time</option>
+                                        <option value="07:00 am">07:00 am</option>
+                                        <option value="08:30 am">08:30 am</option>
+                                        <option value="10:00 am">10:00 am</option>
+                                        <option value="11:30 am">11:30 am</option>
+                                        <option value="01:00 pm">01:00 pm</option>
+                                        <option value="02:30 pm">02:30 pm</option>
+                                        <option value="04:00 pm">04:00 pm</option>
+                                        <option value="05:30 pm">05:30 pm</option>
+                                        <option value="07:00 pm">07:00 pm</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-primary-blue mb-1.5 uppercase">Event*</label>
+                                    <textarea id="booking-event" rows="4" required class="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2.5 text-sm outline-none focus:bg-white focus:border-primary-teal transition-all resize-none"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="flex flex-col gap-6">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-primary-blue mb-1.5 uppercase">End Date*</label>
+                                    <input id="booking-end-date" type="date" required class="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2.5 text-sm outline-none focus:bg-white focus:border-primary-teal transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-primary-blue mb-1.5 uppercase">End Time*</label>
+                                    <select id="booking-end-time" required class="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2.5 text-sm outline-none focus:bg-white focus:border-primary-teal transition-all">
+                                        <option value="" disabled selected>Select end time</option>
+                                        <option value="07:00 am">07:00 am</option>
+                                        <option value="08:30 am">08:30 am</option>
+                                        <option value="10:00 am">10:00 am</option>
+                                        <option value="11:30 am">11:30 am</option>
+                                        <option value="01:00 pm">01:00 pm</option>
+                                        <option value="02:30 pm">02:30 pm</option>
+                                        <option value="04:00 pm">04:00 pm</option>
+                                        <option value="05:30 pm">05:30 pm</option>
+                                        <option value="07:00 pm">07:00 pm</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-primary-blue mb-1.5 uppercase">Num. of Participant*</label>
+                                    <input id="booking-participants" type="number" required placeholder="Max 60" class="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2.5 text-sm outline-none focus:bg-white focus:border-primary-teal transition-all">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Warning Banner -->
+                        <div class="mt-8 bg-orange-500 text-white px-4 py-3 rounded text-[11px] font-bold leading-relaxed tracking-wide">
+                            ADMINS MAY CANCEL CONFIRMED BOOKINGS. ANY CANCELLED BOOKING WILL INCLUDE AN EXPLANATORY REASON.
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-10 flex items-center justify-between">
+                            <button onclick="showPage('search')" class="bg-[#e53e3e] hover:bg-red-700 text-white px-8 py-2.5 rounded text-sm font-bold transition-all uppercase">
+                                Cancel
+                            </button>
+                            <button onclick="proceedToSummary()" class="bg-[#f6ad55] hover:bg-orange-500 text-white px-8 py-2.5 rounded text-sm font-bold transition-all uppercase flex items-center gap-2">
+                                Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Availability Grid Card -->
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-primary-blue font-bold text-sm">Weekly Availability</h3>
+                            <div class="flex items-center gap-4 text-[11px] font-medium">
+                                <button class="text-primary-blue hover:underline">Last Week</button>
+                                <span class="text-primary-blue font-bold">This Week</span>
+                                <button class="text-primary-blue hover:underline">Next Week</button>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-lg overflow-hidden">
+                            <div id="grid-header" class="grid grid-cols-8 divide-x divide-gray-100 text-center text-[10px] font-bold uppercase text-white">
+                                <div class="bg-primary-blue py-3">Time</div>
+                                <div class="bg-primary-blue py-3 leading-tight">Monday<br><span class="opacity-70 font-normal date-label"></span></div>
+                                <div class="bg-primary-blue py-3 leading-tight">Tuesday<br><span class="opacity-70 font-normal date-label"></span></div>
+                                <div class="bg-primary-blue py-3 leading-tight">Wednesday<br><span class="opacity-70 font-normal date-label"></span></div>
+                                <div class="bg-primary-blue py-3 leading-tight">Thursday<br><span class="opacity-70 font-normal date-label"></span></div>
+                                <div class="bg-primary-blue py-3 leading-tight">Friday<br><span class="opacity-70 font-normal date-label"></span></div>
+                                <div class="bg-primary-blue py-3 leading-tight">Saturday<br><span class="opacity-70 font-normal date-label"></span></div>
+                                <div class="bg-primary-blue py-3 leading-tight">Sunday<br><span class="opacity-70 font-normal date-label"></span></div>
+                            </div>
+                            
+                            <!-- Sample Rows -->
+                            <div id="availability-grid" class="flex flex-col divide-y divide-gray-100">
+                                <!-- Row template -->
+                                <div class="grid grid-cols-8 divide-x divide-gray-100 text-[9px] text-center h-12 items-center">
+                                    <div class="bg-primary-blue text-white h-full flex items-center justify-center font-medium">07:00 am - 08:30 am</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="bg-red-900 text-white h-full flex items-center justify-center">Close</div>
+                                    <div class="bg-red-900 text-white h-full flex items-center justify-center">Close</div>
+                                </div>
+                                <!-- More sample rows to match PNG layout -->
+                                <div class="grid grid-cols-8 divide-x divide-gray-100 text-[9px] text-center h-12 items-center">
+                                    <div class="bg-primary-blue text-white h-full flex items-center justify-center font-medium">08:30 am - 10:00 am</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="bg-primary-teal text-white h-full flex items-center justify-center">Booked</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="text-blue-400">Available</div>
+                                    <div class="bg-red-900 text-white h-full flex items-center justify-center">Close</div>
+                                    <div class="bg-red-900 text-white h-full flex items-center justify-center">Close</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="mt-6 flex items-center gap-6 text-[10px] text-gray-400 font-medium">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-gray-100 rounded-sm"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-primary-teal rounded-sm"></div>
+                                <span>Booked</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-red-900 rounded-sm"></div>
+                                <span>Close</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== PAGE: BOOK NOW SUMMARY ===================== -->
+                <div id="page-book-now-summary" class="p-6 hidden">
+                    <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
+                        <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                        <a href="../index.html" class="hover:text-primary-teal transition-colors">Home</a>
+                        <span>/</span>
+                        <span class="text-primary-blue font-medium">Booking</span>
+                    </div>
+
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden" style="min-height:420px;">
+                        <div class="p-8">
+                            <h2 id="summary-facility-name" class="text-primary-blue font-bold text-lg mb-8">Reserve Facility</h2>
+                            
+                            <div class="space-y-8">
+                                <!-- Booking Details -->
+                                <div>
+                                    <h3 class="text-primary-blue font-bold text-sm mb-3">Booking Details</h3>
+                                    <div class="space-y-2">
+                                        <p class="text-sm text-gray-600"><span class="font-semibold text-primary-blue">Event Name:</span> <span id="summary-event" class="text-gray-500"></span></p>
+                                        <p class="text-sm text-gray-600"><span class="font-semibold text-primary-blue">Booking Date & Time:</span> <span id="summary-datetime" class="text-gray-500"></span></p>
+                                    </div>
+                                </div>
+
+
+                                <!-- Remark -->
+                                <div>
+                                    <h3 class="text-primary-blue font-bold text-sm mb-3">Remark</h3>
+                                    <p class="text-xs text-gray-500 leading-relaxed">
+                                        <span class="font-bold text-primary-blue">UMPSA Student & Staff :</span> Since this is booked by a university email user, only students & staff of UMPSA are allowed to use the facilities. Strict action/fines will be imposed if outsiders are involved.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="mt-12 flex items-center justify-between">
+                                <button onclick="showPage('booking-form')" class="border border-gray-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-gray-600 px-8 py-2.5 rounded text-sm font-bold transition-all uppercase">
+                                    Back
+                                </button>
+                                <button onclick="proceedToConfirmation()" class="bg-[#f6ad55] hover:bg-orange-500 text-white px-8 py-2.5 rounded text-sm font-bold transition-all uppercase shadow-md">
+                                    BOOK NOW
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== PAGE: CONFIRM BOOKING ===================== -->
+                <div id="page-confirm-booking" class="p-6 hidden">
+                    <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
+                        <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                        <a href="../index.html" class="hover:text-primary-teal transition-colors">Home</a>
+                        <span>/</span>
+                        <span class="text-primary-blue font-medium">Confirmation</span>
+                    </div>
+
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-8" style="min-height:420px;">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-primary-blue font-bold text-lg">Order</h2>
+                            <span class="text-sm text-gray-400" id="confirm-order-date">Date: </span>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-lg overflow-hidden">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 text-[11px] font-bold text-primary-blue uppercase border-b border-gray-100">
+                                    <tr>
+                                        <th class="px-6 py-4">#</th>
+                                        <th class="px-6 py-4">Date</th>
+                                        <th class="px-6 py-4">Item</th>
+                                        <th class="px-6 py-4">Qty</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="confirm-table-body" class="divide-y divide-gray-50">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-12 flex items-center justify-between">
+                            <button onclick="showPage('book-now-summary')" class="border border-gray-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-gray-600 px-8 py-2.5 rounded text-sm font-bold transition-all uppercase">
+                                CANCEL
+                            </button>
+                            <button id="btn-submit-booking" onclick="submitBooking()" class="bg-[#f6ad55] hover:bg-orange-500 text-white px-8 py-2.5 rounded text-sm font-bold transition-all uppercase shadow-md flex items-center gap-2">
+                                CONFIRM BOOKING
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- ===================== PAGE: REPORT ===================== -->
                 <div id="page-report" class="p-6 hidden">
                     <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
@@ -330,9 +571,9 @@
         }
 
         // ---- App Shell: show/hide pages ----
-        const pages = ['dashboard', 'search', 'report', 'announcement'];
+        const pages = ['dashboard', 'search', 'report', 'announcement', 'booking-form', 'book-now-summary', 'confirm-booking'];
 
-        function showPage(pageId, navEl) {
+        function showPage(pageId, extra) {
             pages.forEach(p => {
                 const el = document.getElementById('page-' + p);
                 if (el) el.classList.add('hidden');
@@ -341,12 +582,175 @@
             if (target) target.classList.remove('hidden');
 
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            if (navEl) navEl.classList.add('active');
+            
+            // Highlight sidebar if matching pageId
+            const sidebarBtn = document.querySelector(`.nav-link[onclick*="showPage('${pageId}')"]`);
+            if (sidebarBtn) sidebarBtn.classList.add('active');
 
             if (pageId === 'dashboard') fetchBookings();
             if (pageId === 'search') fetchFacilities();
+            
+            if (pageId === 'booking-form' && extra) {
+                const facility = allFacilities.find(f => f.facility_id == extra);
+                if (facility) {
+                    selectedFacility = facility;
+                    document.getElementById('booking-title').textContent = `Reserve ${facility.name}`;
+                    
+                    // Reset Selection State
+                    selectionStart = null;
+                    selectionEnd = null;
+                    highlightSelectionRange(); // This will clear the highlights since selectionStart is null
+
+                    // Set default dates to today
+                    const today = new Date().toISOString().split('T')[0];
+                    document.querySelectorAll('#page-booking-form input[type="date"]').forEach(input => {
+                        input.value = today;
+                    });
+
+                    renderAvailability(extra);
+                }
+            }
 
             lucide.createIcons();
+        }
+
+        // ---- Time Parsing Helpers for Multi-slot Check ----
+        function parseTimeMins(timeStr) {
+            const parts = timeStr.trim().split(' ');
+            let [hours, minutes] = parts[0].split(':');
+            hours = parseInt(hours, 10);
+            if (hours === 12) hours = 0;
+            if (parts[1] && parts[1].toLowerCase() === 'pm') hours += 12;
+            return hours * 60 + parseInt(minutes, 10);
+        }
+
+        function isSlotBooked(cellDateStr, cellSlot, b) {
+            const [cStart] = cellSlot.split(' - ');
+            const cellStartTime = parseTimeMins(cStart);
+            
+            const bEndDateStr = b.end_date || b.date;
+            const [bStart, bEnd] = b.time_slot.split(' - ');
+            const bookingStartTime = parseTimeMins(bStart);
+            const bookingEndTime = parseTimeMins(bEnd);
+
+            if (cellDateStr < b.date || cellDateStr > bEndDateStr) return false;
+            if (cellDateStr > b.date && cellDateStr < bEndDateStr) return true;
+
+            if (b.date === bEndDateStr) {
+                if (cellDateStr !== b.date) return false;
+                return cellStartTime >= bookingStartTime && cellStartTime < bookingEndTime;
+            }
+
+            if (cellDateStr === b.date) return cellStartTime >= bookingStartTime;
+            if (cellDateStr === bEndDateStr) return cellStartTime < bookingEndTime;
+            
+            return false;
+        }
+
+        // ---- Booking Page: Availability Grid ----
+        async function renderAvailability(facilityId) {
+            const grid = document.getElementById('availability-grid');
+            grid.innerHTML = '<div class="p-8 text-center text-xs text-gray-400">Loading availability...</div>';
+
+            // Update Header Dates
+            const now = new Date();
+            const currentDay = now.getDay(); // 0 (Sun) to 6 (Sat)
+            const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+            const monday = new Date(now);
+            monday.setDate(now.getDate() + diffToMonday);
+            monday.setHours(0, 0, 0, 0);
+
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            sunday.setHours(23, 59, 59, 999);
+
+            const dateLabels = document.querySelectorAll('.date-label');
+            const weekDates = [];
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                weekDates.push(date);
+                
+                const dayStr = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                if (dateLabels[i]) dateLabels[i].textContent = dayStr;
+            }
+
+            // Fetch Real Data from Supabase
+            const { data: bookings, error: bError } = await db
+                .from('Booking')
+                .select('date, end_date, time_slot')
+                .eq('facility_id', facilityId)
+                .eq('status', 'Confirmed');
+
+            const { data: closures, error: cError } = await db
+                .from('Facility_Closure')
+                .select('date, time_slot')
+                .eq('facility_id', facilityId)
+                .gte('date', monday.toISOString().split('T')[0])
+                .lte('date', sunday.toISOString().split('T')[0]);
+
+            if (bError || cError) {
+                console.error('Error fetching availability:', bError || cError);
+                grid.innerHTML = '<div class="p-8 text-center text-xs text-red-500">Failed to load availability.</div>';
+                return;
+            }
+
+            grid.innerHTML = ''; // Clear loading message
+
+            const timeSlots = [
+                '07:00 am - 08:30 am', '08:30 am - 10:00 am', '10:00 am - 11:30 am', 
+                '11:30 am - 01:00 pm', '01:00 pm - 02:30 pm', '02:30 pm - 04:00 pm', 
+                '04:00 pm - 05:30 pm', '05:30 pm - 07:00 pm'
+            ];
+
+            timeSlots.forEach((slot, index) => {
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-8 divide-x divide-gray-100 text-[9px] text-center h-12 items-center';
+                
+                let cellsHtml = `<div class="bg-primary-blue text-white h-full flex items-center justify-center font-medium">${slot}</div>`;
+                
+                for (let day = 0; day < 7; day++) {
+                    const cellDate = weekDates[day];
+                    const dateStr = cellDate.toISOString().split('T')[0];
+                    
+                    let status = 'Available';
+                    let statusClass = 'text-blue-400';
+
+                    // Check Closures
+                    const isClosed = closures.some(c => {
+                        return c.date === dateStr && (c.time_slot === slot || c.time_slot === '07:00 am - 07:00 pm');
+                    });
+
+                    if (isClosed) {
+                        status = 'Close';
+                        statusClass = 'bg-red-900 text-white h-full flex items-center justify-center';
+                    } else {
+                        // Check Bookings
+                        const isBooked = bookings && bookings.some(b => {
+                            return isSlotBooked(dateStr, slot, b);
+                        });
+
+                        if (isBooked) {
+                            status = 'Booked';
+                            statusClass = 'bg-primary-teal text-white h-full flex items-center justify-center';
+                        } else {
+                            // Available - make it interactive
+                            statusClass = 'text-blue-400 cursor-pointer hover:bg-blue-50 transition-colors h-full flex items-center justify-center slot-cell';
+                            status = `<div class="w-full h-full flex items-center justify-center" 
+                                           data-date="${dateStr}" 
+                                           data-index="${index}" 
+                                           data-day="${day}"
+                                           onclick="selectSlot('${dateStr}', ${index}, ${day}, this)">Available</div>`;
+                        }
+                    }
+
+                    cellsHtml += `<div class="${statusClass}">${status}</div>`;
+                }
+                
+                row.innerHTML = cellsHtml;
+                grid.appendChild(row);
+            });
         }
 
         // ---- Booking Tab Logic ----
@@ -363,6 +767,17 @@
             document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
             document.getElementById('subtab-' + tab).classList.add('active');
             document.getElementById('booking-list-title').textContent = 'List of ' + tab + ' booking';
+
+            const headerRow = document.getElementById('booking-list-header');
+            const actionCol = document.getElementById('booking-action-col');
+            if (tab === 'cancelled') {
+                actionCol.classList.add('hidden');
+                headerRow.classList.replace('grid-cols-6', 'grid-cols-5');
+            } else {
+                actionCol.classList.remove('hidden');
+                headerRow.classList.replace('grid-cols-5', 'grid-cols-6');
+            }
+
             renderBookings();
         }
 
@@ -376,6 +791,8 @@
                     booking_id,
                     num_of_participant,
                     date,
+                    end_date,
+                    invoice_number,
                     created_at,
                     status,
                     Facility ( name )
@@ -403,37 +820,93 @@
             };
             const filtered = allUserBookings.filter(b => b.status === statusMap[currentSubTab]);
 
-            // Clear rows (except the hidden empty state template if you want)
-            container.innerHTML = '';
+            // Clear existing data rows (keep the emptyEl in DOM!)
+            container.querySelectorAll('.booking-row').forEach(row => row.remove());
 
             if (filtered.length === 0) {
-                container.appendChild(emptyEl);
                 emptyEl.classList.remove('hidden');
                 return;
             }
 
             emptyEl.classList.add('hidden');
-            filtered.forEach((b, index) => {
-                const bookingDate = new Date(b.created_at).toLocaleDateString();
-                const eventDate = new Date(b.date).toLocaleDateString();
+
+            // Group by invoice_number
+            const grouped = {};
+            filtered.forEach(b => {
+                const inv = b.invoice_number || `INV-${b.booking_id.toString().padStart(5, '0')}`;
+                if (!grouped[inv]) {
+                    grouped[inv] = {
+                        invoice: inv,
+                        facility: b.Facility ? b.Facility.name : 'Unknown',
+                        participants: b.num_of_participant,
+                        created_at: b.created_at,
+                        dateRange: [b.date],
+                        status: b.status
+                    };
+                    if (b.end_date && b.end_date !== b.date) {
+                        grouped[inv].dateRange.push(b.end_date);
+                    }
+                } else {
+                    if (!grouped[inv].dateRange.includes(b.date)) {
+                        grouped[inv].dateRange.push(b.date);
+                    }
+                    if (b.end_date && !grouped[inv].dateRange.includes(b.end_date)) {
+                        grouped[inv].dateRange.push(b.end_date);
+                    }
+                }
+            });
+
+            Object.values(grouped).forEach((g, index) => {
+                const bookingDate = new Date(g.created_at).toLocaleDateString();
+                // Format event date
+                g.dateRange.sort();
+                const eventDateDisplay = g.dateRange.length > 1 
+                    ? `${g.dateRange[0]} - ${g.dateRange[g.dateRange.length-1]}`
+                    : g.dateRange[0];
+
+                let actionHtml = '';
+                let isCancelled = g.status === 'Cancelled';
+
+                if (g.status === 'Confirmed') {
+                    actionHtml = `<div><button onclick="cancelBooking('${g.invoice}')" class="border border-gray-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-gray-600 px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase">CANCEL</button></div>`;
+                } else if (!isCancelled) {
+                    actionHtml = `<div><span class="text-xs font-medium text-gray-500">${g.status}</span></div>`;
+                }
+
+                const gridCols = isCancelled ? 'grid-cols-5' : 'grid-cols-6';
+                
                 const row = document.createElement('div');
-                row.className = 'grid grid-cols-7 gap-4 py-4 text-xs text-gray-600 items-center border-b border-gray-50';
+                row.className = `booking-row grid ${gridCols} gap-4 py-4 text-xs text-gray-600 items-center border-b border-gray-50`;
                 row.innerHTML = `
-                    <div class="font-medium">${index + 1}</div>
-                    <div>INV-${b.booking_id.toString().padStart(5, '0')}</div>
-                    <div>${b.num_of_participant} person</div>
-                    <div class="font-medium text-primary-blue">${b.Facility ? b.Facility.name : 'Unknown'}</div>
+                    <div class="font-bold text-primary-blue">${g.invoice}</div>
+                    <div>${g.participants} person</div>
+                    <div class="font-medium text-primary-teal">${g.facility}</div>
                     <div>${bookingDate}</div>
-                    <div>${eventDate}</div>
-                    <div>
-                        <button class="text-primary-teal hover:underline font-medium">View Result</button>
-                    </div>
+                    <div>${eventDateDisplay}</div>
+                    ${!isCancelled ? actionHtml : ''}
                 `;
                 container.appendChild(row);
             });
         }
 
+        async function cancelBooking(invoice) {
+            if (!confirm(`Are you sure you want to cancel booking ${invoice}?`)) return;
+
+            const { error } = await db
+                .from('Booking')
+                .update({ status: 'Cancelled' })
+                .eq('invoice_number', invoice);
+
+            if (error) {
+                alert('Failed to cancel booking: ' + error.message);
+            } else {
+                alert('Booking cancelled successfully.');
+                fetchBookings(); // Refresh the list
+            }
+        }
+
         // ---- Supabase: Fetch Facilities ----
+
         let allFacilities = [];
 
         async function fetchFacilities() {
@@ -531,7 +1004,8 @@
 
                     <!-- Right: Button -->
                     <div class="flex-shrink-0">
-                        <button class="bg-[#183e87] hover:bg-blue-900 text-white px-8 py-3 rounded-md font-medium text-sm transition-all shadow-sm">
+                        <button onclick="showPage('booking-form', ${f.facility_id})" 
+                                class="bg-[#183e87] hover:bg-blue-900 text-white px-8 py-3 rounded-md font-medium text-sm transition-all shadow-sm">
                             Book Now
                         </button>
                     </div>
@@ -548,6 +1022,315 @@
         function handleLogout() {
             sessionStorage.clear();
             window.location.href = '../LogInPage/LogInPage.html';
+        }
+
+        // ---- Booking Process Logic ----
+        let selectedFacility = null;
+        let bookingData = {};
+        let selectionStart = null; // { date, index, day }
+        let selectionEnd = null;   // { date, index, day }
+
+        function selectSlot(date, index, day, el) {
+            if (!selectionStart || (selectionStart && selectionEnd)) {
+                // First click or reset
+                selectionStart = { date, index, day };
+                selectionEnd = null;
+            } else {
+                // Second click
+                selectionEnd = { date, index, day };
+            }
+
+            // Update Form
+            updateSelectionForm();
+
+            // Visual feedback
+            highlightSelectionRange();
+            
+            // Scroll to form nicely if selection is complete
+            if (selectionEnd) {
+                document.getElementById('booking-title').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        const slotTimes = [
+            { start: '07:00 am', end: '08:30 am' },
+            { start: '08:30 am', end: '10:00 am' },
+            { start: '10:00 am', end: '11:30 am' },
+            { start: '11:30 am', end: '01:00 pm' },
+            { start: '01:00 pm', end: '02:30 pm' },
+            { start: '02:30 pm', end: '04:00 pm' },
+            { start: '04:00 pm', end: '05:30 pm' },
+            { start: '05:30 pm', end: '07:00 pm' }
+        ];
+
+        function updateSelectionForm() {
+            if (!selectionStart) return;
+
+            if (!selectionEnd) {
+                // Single slot selected (for now)
+                document.getElementById('booking-start-date').value = selectionStart.date;
+                document.getElementById('booking-end-date').value = selectionStart.date;
+                document.getElementById('booking-start-time').value = slotTimes[selectionStart.index].start;
+                document.getElementById('booking-end-time').value = slotTimes[selectionStart.index].end;
+            } else {
+                // Range selected
+                // Ensure chronological order
+                let start = selectionStart;
+                let end = selectionEnd;
+
+                // Sort by date then index
+                if (new Date(start.date) > new Date(end.date) || 
+                   (start.date === end.date && start.index > end.index)) {
+                     [start, end] = [end, start];
+                }
+
+                document.getElementById('booking-start-date').value = start.date;
+                document.getElementById('booking-end-date').value = end.date;
+                document.getElementById('booking-start-time').value = slotTimes[start.index].start;
+                document.getElementById('booking-end-time').value = slotTimes[end.index].end;
+            }
+        }
+
+        function highlightSelectionRange() {
+            // Remove all selection highlights
+            document.querySelectorAll('.slot-cell').forEach(cell => {
+                cell.classList.remove('ring-2', 'ring-primary-teal', 'bg-blue-100', 'bg-blue-200');
+            });
+
+            if (!selectionStart) return;
+
+            const cells = document.querySelectorAll('.slot-cell div[data-date]');
+            
+            let start = selectionStart;
+            let end = selectionEnd || selectionStart;
+
+            // Sort for comparison
+            if (new Date(start.date) > new Date(end.date) || 
+               (start.date === end.date && start.index > end.index)) {
+                 [start, end] = [end, start];
+            }
+
+            cells.forEach(el => {
+                const date = el.getAttribute('data-date');
+                const index = parseInt(el.getAttribute('data-index'));
+                
+                const currDate = new Date(date);
+                const sDate = new Date(start.date);
+                const eDate = new Date(end.date);
+
+                let isInRange = false;
+                if (currDate > sDate && currDate < eDate) {
+                    isInRange = true;
+                } else if (currDate.getTime() === sDate.getTime() && currDate.getTime() === eDate.getTime()) {
+                    isInRange = (index >= start.index && index <= end.index);
+                } else if (currDate.getTime() === sDate.getTime()) {
+                    isInRange = (index >= start.index);
+                } else if (currDate.getTime() === eDate.getTime()) {
+                    isInRange = (index <= end.index);
+                }
+
+                if (isInRange) {
+                    const parent = el.parentElement;
+                    parent.classList.add('bg-blue-100');
+                    if (el.getAttribute('data-date') === selectionStart.date && parseInt(el.getAttribute('data-index')) === selectionStart.index) {
+                         parent.classList.add('ring-2', 'ring-primary-teal');
+                    }
+                    if (selectionEnd && el.getAttribute('data-date') === selectionEnd.date && parseInt(el.getAttribute('data-index')) === selectionEnd.index) {
+                         parent.classList.add('ring-2', 'ring-primary-teal');
+                    }
+                }
+            });
+        }
+
+        function proceedToSummary() {
+            // Get form values
+            const startDate = document.getElementById('booking-start-date').value;
+            const endDate = document.getElementById('booking-end-date').value;
+            const startTime = document.getElementById('booking-start-time').value;
+            const endTime = document.getElementById('booking-end-time').value;
+            const event = document.getElementById('booking-event').value;
+            const participants = document.getElementById('booking-participants').value;
+
+            // Simple validation
+            if (!startDate || !startTime || !endDate || !endTime || !event || !participants) {
+                alert('Please fill in all required fields marked with *');
+                return;
+            }
+
+            // Save data
+            const slotsToBook = getSlotsInRange(startDate, endDate, startTime, endTime);
+            bookingData = { 
+                startDate, 
+                endDate, 
+                startTime, 
+                endTime, 
+                event, 
+                participants,
+                slots: slotsToBook
+            };
+            
+            // Update Summary UI
+            document.getElementById('summary-facility-name').textContent = `Reserve ${selectedFacility.name}`;
+            document.getElementById('summary-event').textContent = event;
+            document.getElementById('summary-datetime').textContent = 
+                startDate === endDate 
+                ? `${startDate} (${startTime} - ${endTime})`
+                : `${startDate} ${startTime} - ${endDate} ${endTime}`;
+            
+            showPage('book-now-summary');
+        }
+
+        function proceedToConfirmation() {
+            // Update Confirmation UI
+            const today = new Date().toLocaleDateString('en-GB');
+            document.getElementById('confirm-order-date').textContent = `Date: ${today}`;
+            
+            const tbody = document.getElementById('confirm-table-body');
+            tbody.innerHTML = '';
+            
+            // Revert to showing the entire range as ONE row per day or ONE row total
+            // User requested 1 booking = 1 invoice, so we show it as a high-level summary here
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 transition-colors';
+            
+            const dateSummary = bookingData.startDate === bookingData.endDate
+                ? `${bookingData.startDate} (${bookingData.startTime} - ${bookingData.endTime})`
+                : `${bookingData.startDate} ${bookingData.startTime} - ${bookingData.endDate} ${bookingData.endTime}`;
+
+            row.innerHTML = `
+                <td class="px-6 py-4 text-gray-400 text-xs">1</td>
+                <td class="px-6 py-4 text-gray-600 text-[13px] font-medium whitespace-nowrap">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-primary-blue">${dateSummary}</span>
+                        <span class="text-xs text-gray-400">${bookingData.slots.length} slots selected</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-primary-blue font-semibold text-[13px]">${selectedFacility.name}</td>
+                <td class="px-6 py-4 text-gray-500 text-[13px]">1</td>
+            `;
+            tbody.appendChild(row);
+            
+            showPage('confirm-booking');
+        }
+
+        function getSlotsInRange(sDate, eDate, sTime, eTime) {
+            const slots = [];
+            const start = new Date(sDate);
+            const end = new Date(eDate);
+            
+            const timeSlotLabels = [
+                '07:00 am - 08:30 am', '08:30 am - 10:00 am', '10:00 am - 11:30 am', 
+                '11:30 am - 01:00 pm', '01:00 pm - 02:30 pm', '02:30 pm - 04:00 pm', 
+                '04:00 pm - 05:30 pm', '05:30 pm - 07:00 pm'
+            ];
+
+            const sTimeIdx = slotTimes.findIndex(t => t.start === sTime);
+            const eTimeIdx = slotTimes.findIndex(t => t.end === eTime);
+
+            if (sTimeIdx === -1 || eTimeIdx === -1) return [];
+
+            let curr = new Date(start);
+            while (curr <= end) {
+                const dateStr = curr.toISOString().split('T')[0];
+                
+                let startIdx = 0;
+                let endIdx = timeSlotLabels.length - 1;
+
+                if (dateStr === sDate) startIdx = sTimeIdx;
+                if (dateStr === eDate) endIdx = eTimeIdx;
+
+                for (let i = startIdx; i <= endIdx; i++) {
+                    slots.push({ date: dateStr, time_slot: timeSlotLabels[i] });
+                }
+                
+                curr.setDate(curr.getDate() + 1);
+            }
+            return slots;
+        }
+
+        async function submitBooking() {
+            const btn = document.getElementById('btn-submit-booking');
+            btn.disabled = true;
+            btn.textContent = 'SUBMITTING...';
+
+            try {
+                const slotsToBook = getSlotsInRange(
+                    bookingData.startDate, 
+                    bookingData.endDate, 
+                    bookingData.startTime, 
+                    bookingData.endTime
+                );
+
+                if (slotsToBook.length === 0) {
+                    alert('Invalid time range selected.');
+                    btn.disabled = false;
+                    btn.textContent = 'CONFIRM BOOKING';
+                    return;
+                }
+
+                // Check for double booking for ALL slots
+                // We'll fetch all bookings for this facility to check overlaps
+                const { data: existing, error: checkError } = await db
+                    .from('Booking')
+                    .select('date, end_date, time_slot')
+                    .eq('facility_id', selectedFacility.facility_id)
+                    .eq('status', 'Confirmed');
+
+                if (checkError) throw checkError;
+
+                // Also check for closures
+                const { data: closures, error: closureError } = await db
+                    .from('Facility_Closure')
+                    .select('date, time_slot')
+                    .eq('facility_id', selectedFacility.facility_id)
+                    .gte('date', bookingData.startDate)
+                    .lte('date', bookingData.endDate);
+
+                if (closureError) throw closureError;
+                
+                const conflicts = slotsToBook.filter(slot => {
+                    const isBooked = existing.some(e => isSlotBooked(slot.date, slot.time_slot, e));
+                    const isClosed = closures.some(c => c.date === slot.date && c.time_slot === slot.time_slot);
+                    return isBooked || isClosed;
+                });
+
+                if (conflicts.length > 0) {
+                    const conflictList = conflicts.slice(0, 3).map(c => `${c.date} ${c.time_slot}`).join('\n');
+                    alert(`Some slots in your range are unavailable:\n${conflictList}${conflicts.length > 3 ? '\n...' : ''}`);
+                    btn.disabled = false;
+                    btn.textContent = 'CONFIRM BOOKING';
+                    return;
+                }
+
+                // Single insert
+                const sessionSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+                const dateCode = new Date().toISOString().slice(2, 10).replace(/-/g, ''); // YYMMDD
+                const invoiceNumber = `INV-${dateCode}-${sessionSuffix}`;
+
+                const insertData = {
+                    user_id: currentUser.id,
+                    facility_id: selectedFacility.facility_id,
+                    date: bookingData.startDate,
+                    end_date: bookingData.endDate,
+                    time_slot: `${bookingData.startTime} - ${bookingData.endTime}`,
+                    num_of_participant: parseInt(bookingData.participants),
+                    purpose: bookingData.event,
+                    status: 'Confirmed',
+                    invoice_number: invoiceNumber
+                };
+
+                const { error } = await db.from('Booking').insert([insertData]);
+
+                if (error) throw error;
+
+                alert('Booking successful!');
+                showPage('dashboard');
+            } catch (err) {
+                console.error('Booking error:', err);
+                alert('Failed to submit booking: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = 'CONFIRM BOOKING';
+            }
         }
 
         // Init loads
