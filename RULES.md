@@ -95,6 +95,7 @@ admin_id        | INT(11)      | Yes  | FK  | Links to Admin Table
 issue_description| TEXT        | No   |     | Description of the damage/issue
 image_proof     | VARCHAR(255) | Yes  |     | Path/URL to image evidence
 status          | VARCHAR(20)  | No   |     | Status (Pending/Resolved)
+created_at      | TIMESTAMPTZ  | Yes  |     | Auto-timestamp of creation
 
 **Facility_Closure Table**
 ----------------------------------------------

@@ -195,19 +195,25 @@
                         <!-- Table -->
                         <div class="p-6 flex-1 flex flex-col h-[400px]">
                             <h3 id="booking-list-title" class="text-sm font-semibold text-primary-blue mb-4">List of confirmed booking</h3>
-                            <div id="booking-list-header" class="grid grid-cols-6 gap-4 pb-3 border-b border-gray-100 text-[10px] text-gray-400 font-medium tracking-wide uppercase transition-all">
-                                <div>Invoice No</div>
-                                <div>Participant</div>
-                                <div>Facility/Event</div>
-                                <div>Booking Date</div>
-                                <div>Event Date</div>
-                                <div id="booking-action-col">Action</div>
-                            </div>
-                            <div id="booking-list-rows" class="flex-1 flex flex-col divide-y divide-gray-50 overflow-y-auto">
-                                <!-- Empty State -->
-                                <div id="booking-empty" class="flex-1 flex items-center justify-center py-12">
-                                    <span class="text-sm text-gray-400">No record.</span>
-                                </div>
+                            <div class="border border-gray-100 rounded-lg overflow-y-auto flex-1 bg-white">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100 bg-white sticky top-0">
+                                        <tr id="booking-list-header">
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Invoice No</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Participant</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Facility/Event</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Booking Date</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Event Date</th>
+                                            <th id="booking-action-col" class="px-6 pb-3 pt-4 font-medium text-left">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="booking-list-rows" class="divide-y divide-gray-50">
+                                        <!-- Empty State -->
+                                        <tr id="booking-empty">
+                                            <td colspan="6" class="py-12 text-center text-sm text-gray-400 border-none">No record.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -346,10 +352,10 @@
 
                         <!-- Action Buttons -->
                         <div class="mt-10 flex items-center justify-between">
-                            <button onclick="showPage('search')" class="bg-[#e53e3e] hover:bg-red-700 text-white px-8 py-2.5 rounded text-sm font-bold transition-all uppercase">
+                            <button onclick="showPage('search')" class="bg-[#e53e3e] hover:bg-red-600 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-sm">
                                 Cancel
                             </button>
-                            <button onclick="proceedToSummary()" class="bg-[#f6ad55] hover:bg-orange-500 text-white px-8 py-2.5 rounded text-sm font-bold transition-all uppercase flex items-center gap-2">
+                            <button onclick="proceedToSummary()" class="bg-[#183e87] hover:bg-blue-900 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-md flex items-center gap-2">
                                 Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -458,10 +464,10 @@
 
                             <!-- Action Buttons -->
                             <div class="mt-12 flex items-center justify-between">
-                                <button onclick="showPage('booking-form')" class="border border-gray-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-gray-600 px-8 py-2.5 rounded text-sm font-bold transition-all uppercase">
+                                <button onclick="showPage('booking-form')" class="bg-[#e53e3e] hover:bg-red-600 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-sm">
                                     Back
                                 </button>
-                                <button onclick="proceedToConfirmation()" class="bg-[#f6ad55] hover:bg-orange-500 text-white px-8 py-2.5 rounded text-sm font-bold transition-all uppercase shadow-md">
+                                <button onclick="proceedToConfirmation()" class="bg-[#183e87] hover:bg-blue-900 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-sm">
                                     BOOK NOW
                                 </button>
                             </div>
@@ -486,12 +492,11 @@
 
                         <div class="border border-gray-100 rounded-lg overflow-hidden">
                             <table class="w-full text-sm text-left">
-                                <thead class="bg-gray-50 text-[11px] font-bold text-primary-blue uppercase border-b border-gray-100">
+                                <thead class="text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100">
                                     <tr>
-                                        <th class="px-6 py-4">#</th>
-                                        <th class="px-6 py-4">Date</th>
-                                        <th class="px-6 py-4">Item</th>
-                                        <th class="px-6 py-4">Qty</th>
+                                        <th class="px-6 pb-3 pt-4 font-medium text-left">Date</th>
+                                        <th class="px-6 pb-3 pt-4 font-medium text-left">Item</th>
+                                        <th class="px-6 pb-3 pt-4 font-medium text-left">Qty</th>
                                     </tr>
                                 </thead>
                                 <tbody id="confirm-table-body" class="divide-y divide-gray-50">
@@ -502,10 +507,10 @@
 
                         <!-- Action Buttons -->
                         <div class="mt-12 flex items-center justify-between">
-                            <button onclick="showPage('book-now-summary')" class="border border-gray-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-gray-600 px-8 py-2.5 rounded text-sm font-bold transition-all uppercase">
+                            <button onclick="showPage('book-now-summary')" class="bg-[#e53e3e] hover:bg-red-600 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-sm">
                                 CANCEL
                             </button>
-                            <button id="btn-submit-booking" onclick="submitBooking()" class="bg-[#f6ad55] hover:bg-orange-500 text-white px-8 py-2.5 rounded text-sm font-bold transition-all uppercase shadow-md flex items-center gap-2">
+                            <button id="btn-submit-booking" onclick="submitBooking()" class="bg-[#183e87] hover:bg-blue-900 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-sm flex items-center gap-2">
                                 CONFIRM BOOKING
                             </button>
                         </div>
@@ -520,11 +525,80 @@
                         <span>/</span>
                         <span class="text-primary-blue font-medium">Report</span>
                     </div>
-                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex items-center justify-center" style="min-height:420px;">
-                        <div class="text-center py-12">
-                            <i data-lucide="file-text" class="w-10 h-10 text-gray-300 mx-auto mb-3"></i>
-                            <p class="text-sm text-gray-400">Report section coming soon.</p>
+
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col p-8" style="min-height:420px;">
+                        
+                        <h2 class="text-xl font-medium text-primary-blue mb-6">Report Facility Issue</h2>
+
+                        <!-- Form -->
+                        <form class="flex flex-col gap-6 w-full">
+                            <!-- Facility -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-bold text-primary-blue uppercase tracking-wide">FACILITY*</label>
+                                <div class="relative">
+                                    <select id="report-facility" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2.5 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all appearance-none cursor-pointer">
+                                        <option value="" disabled selected hidden>Select Facility to Report</option>
+                                    </select>
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Issue Description -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-bold text-primary-blue uppercase tracking-wide">ISSUE DESCRIPTION*</label>
+                                <textarea id="report-desc" placeholder="Describe the issue or broken equipment..." class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all h-28 resize-none placeholder:text-gray-400"></textarea>
+                            </div>
+
+                            <!-- Upload Photo -->
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-bold text-primary-blue uppercase tracking-wide">UPLOAD PHOTO PROOF*</label>
+                                <input type="file" id="report-image" accept="image/*" class="hidden" onchange="document.getElementById('report-image-name').textContent = this.files[0] ? this.files[0].name : 'Click to upload image or drag and drop'">
+                                <label for="report-image" class="w-full border-2 border-dashed border-gray-200 rounded-md bg-gray-50 flex items-center justify-center py-4 cursor-pointer hover:bg-gray-100 hover:border-primary-teal transition-colors">
+                                    <span id="report-image-name" class="text-primary-teal text-xs font-medium">Click to upload image or drag and drop</span>
+                                </label>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="mt-2 flex items-center gap-4">
+                                <button type="button" onclick="document.getElementById('report-facility').value=''; document.getElementById('report-desc').value=''; document.getElementById('report-image').value=''; document.getElementById('report-image-name').textContent='Click to upload image or drag and drop';" class="bg-[#e53e3e] hover:bg-red-600 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-sm">
+                                    CANCEL
+                                </button>
+                                <button type="button" onclick="submitReport(this)" class="bg-[#183e87] hover:bg-blue-900 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-sm flex items-center justify-center gap-2">
+                                    SUBMIT REPORT
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Divider -->
+                        <div class="w-full h-px bg-gray-100 my-10"></div>
+
+                        <!-- My Submitted Reports -->
+                        <div>
+                            <h3 class="text-sm font-semibold text-primary-blue mb-4">My Submitted Reports</h3>
+                            
+                            <div class="border border-gray-100 rounded-lg overflow-x-auto bg-white">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100">
+                                        <tr>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Facility</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Report Date</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Issue Description</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Proof</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-list-rows" class="divide-y divide-gray-50">
+                                        <!-- Empty State Table Body -->
+                                        <tr>
+                                            <td colspan="5" class="py-12 text-center text-sm text-gray-400 border-none">No record.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -768,14 +842,14 @@
             document.getElementById('subtab-' + tab).classList.add('active');
             document.getElementById('booking-list-title').textContent = 'List of ' + tab + ' booking';
 
-            const headerRow = document.getElementById('booking-list-header');
             const actionCol = document.getElementById('booking-action-col');
+            const emptyStateColspan = document.querySelector('#booking-empty td');
             if (tab === 'cancelled') {
                 actionCol.classList.add('hidden');
-                headerRow.classList.replace('grid-cols-6', 'grid-cols-5');
+                if (emptyStateColspan) emptyStateColspan.setAttribute('colspan', '5');
             } else {
                 actionCol.classList.remove('hidden');
-                headerRow.classList.replace('grid-cols-5', 'grid-cols-6');
+                if (emptyStateColspan) emptyStateColspan.setAttribute('colspan', '6');
             }
 
             renderBookings();
@@ -868,21 +942,19 @@
                 let isCancelled = g.status === 'Cancelled';
 
                 if (g.status === 'Confirmed') {
-                    actionHtml = `<div><button onclick="cancelBooking('${g.invoice}')" class="border border-gray-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-gray-600 px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase">CANCEL</button></div>`;
+                    actionHtml = `<td class="px-6 py-4"><button onclick="cancelBooking('${g.invoice}')" class="border border-gray-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-gray-600 px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase">CANCEL</button></td>`;
                 } else if (!isCancelled) {
-                    actionHtml = `<div><span class="text-xs font-medium text-gray-500">${g.status}</span></div>`;
+                    actionHtml = `<td class="px-6 py-4"><span class="text-xs font-medium text-gray-500">${g.status}</span></td>`;
                 }
 
-                const gridCols = isCancelled ? 'grid-cols-5' : 'grid-cols-6';
-                
-                const row = document.createElement('div');
-                row.className = `booking-row grid ${gridCols} gap-4 py-4 text-xs text-gray-600 items-center border-b border-gray-50`;
+                const row = document.createElement('tr');
+                row.className = 'booking-row hover:bg-gray-50 transition-colors';
                 row.innerHTML = `
-                    <div class="font-bold text-primary-blue">${g.invoice}</div>
-                    <div>${g.participants} person</div>
-                    <div class="font-medium text-primary-teal">${g.facility}</div>
-                    <div>${bookingDate}</div>
-                    <div>${eventDateDisplay}</div>
+                    <td class="px-6 py-4 font-bold text-primary-blue text-xs">${g.invoice}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${g.participants} person</td>
+                    <td class="px-6 py-4 font-medium text-primary-teal text-xs">${g.facility}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${bookingDate}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${eventDateDisplay}</td>
                     ${!isCancelled ? actionHtml : ''}
                 `;
                 container.appendChild(row);
@@ -924,6 +996,8 @@
         }
 
         function renderFacilities() {
+            populateReportFacilities();
+
             // Internal search text
             const query = (document.getElementById('facility-search-input')?.value || '').toLowerCase();
             
@@ -1198,7 +1272,6 @@
                 : `${bookingData.startDate} ${bookingData.startTime} - ${bookingData.endDate} ${bookingData.endTime}`;
 
             row.innerHTML = `
-                <td class="px-6 py-4 text-gray-400 text-xs">1</td>
                 <td class="px-6 py-4 text-gray-600 text-[13px] font-medium whitespace-nowrap">
                     <div class="flex flex-col">
                         <span class="font-bold text-primary-blue">${dateSummary}</span>
@@ -1332,10 +1405,148 @@
                 btn.textContent = 'CONFIRM BOOKING';
             }
         }
+        // ---- Report Facility Logic ----
+
+        function populateReportFacilities() {
+            const select = document.getElementById('report-facility');
+            if(!select) return;
+            // Clear existing except first (placeholder)
+            while(select.options.length > 1) { select.remove(1); }
+            allFacilities.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f.facility_id;
+                opt.textContent = f.name;
+                select.appendChild(opt);
+            });
+        }
+
+        async function submitReport(btn) {
+            if (!currentUser.id) return alert('Please login first.');
+            
+            const facilityId = document.getElementById('report-facility').value;
+            const desc = document.getElementById('report-desc').value.trim();
+            const fileInput = document.getElementById('report-image');
+            const file = fileInput.files[0];
+
+            if (!facilityId || !desc || !file) {
+                return alert('Please fill all fields and upload a photo proof.');
+            }
+
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> SUBMITTING...';
+            lucide.createIcons();
+
+            try {
+                // 1. Upload Image to Supabase Storage
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+                const filePath = `${currentUser.id}/${fileName}`;
+
+                const { data: uploadData, error: uploadError } = await db.storage
+                    .from('reports')
+                    .upload(filePath, file);
+
+                if (uploadError) throw uploadError;
+
+                // 2. Get Public URL
+                const { data: { publicUrl } } = db.storage
+                    .from('reports')
+                    .getPublicUrl(filePath);
+
+                // 3. Insert into Report Table
+                const { error: insertError } = await db.from('Report').insert([{
+                    user_id: currentUser.id,
+                    facility_id: facilityId,
+                    issue_description: desc,
+                    image_proof: publicUrl,
+                    status: 'Pending'
+                }]);
+
+                if (insertError) throw insertError;
+
+                alert('Report submitted successfully!');
+                
+                // Clear form
+                document.getElementById('report-facility').value = '';
+                document.getElementById('report-desc').value = '';
+                fileInput.value = '';
+                document.getElementById('report-image-name').textContent = 'Click to upload image or drag and drop';
+
+                // Refresh table
+                fetchMyReports();
+                
+            } catch (err) {
+                console.error(err);
+                alert('Failed to submit report: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                lucide.createIcons();
+            }
+        }
+
+        async function fetchMyReports() {
+            if (!currentUser.id) return;
+
+            const { data, error } = await db
+                .from('Report')
+                .select(`
+                    *,
+                    Facility ( name )
+                `)
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching reports:', error);
+                return;
+            }
+
+            renderMyReports(data);
+        }
+
+        function renderMyReports(reports) {
+            const container = document.getElementById('report-list-rows');
+            container.innerHTML = '';
+
+            if (!reports || reports.length === 0) {
+                container.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-sm text-gray-400 border-none">No record.</td></tr>`;
+                return;
+            }
+
+            reports.forEach(r => {
+                const reportDate = new Date(r.created_at).toLocaleDateString();
+                const facilityName = r.Facility ? r.Facility.name : 'Unknown';
+                let statusHtml = '';
+                if (r.status === 'Pending') {
+                    statusHtml = `<span class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-1 rounded">PENDING</span>`;
+                } else {
+                    statusHtml = `<span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-1 rounded">RESOLVED</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-primary-teal text-xs">${facilityName}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${reportDate}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600 max-w-xs truncate" title="${r.issue_description}">${r.issue_description}</td>
+                    <td class="px-6 py-4 text-xs">
+                        <a href="${r.image_proof}" target="_blank" class="flex items-center gap-1 text-primary-blue hover:underline font-medium">
+                            <i data-lucide="image" class="w-3.5 h-3.5"></i> View Proof
+                        </a>
+                    </td>
+                    <td class="px-6 py-4">${statusHtml}</td>
+                `;
+                container.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
 
         // Init loads
         fetchBookings();
         fetchFacilities();
+        fetchMyReports(); // Load user reports
     </script>
 </body>
 </html>
