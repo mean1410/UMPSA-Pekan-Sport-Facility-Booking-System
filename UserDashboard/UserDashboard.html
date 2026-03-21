@@ -526,12 +526,25 @@
                         <span class="text-primary-blue font-medium">Report</span>
                     </div>
 
-                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col p-8" style="min-height:420px;">
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col" style="min-height:420px;">
                         
-                        <h2 class="text-xl font-medium text-primary-blue mb-6">Report Facility Issue</h2>
+                        <!-- Report Main Tab -->
+                        <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden">
+                            <button class="main-tab active px-8 py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
+                                Report
+                            </button>
+                        </div>
+                        
+                        <!-- Sub Tabs -->
+                        <div class="flex px-6 gap-8 border-b border-gray-100">
+                            <button class="sub-tab active py-3 text-sm font-medium text-gray-500 cursor-default">
+                                Report Facility Issue
+                            </button>
+                        </div>
 
-                        <!-- Form -->
-                        <form class="flex flex-col gap-6 w-full">
+                        <div class="p-6 flex-1 flex flex-col">
+                            <!-- Form -->
+                            <form class="flex flex-col gap-6 w-full">
                             <!-- Facility -->
                             <div class="flex flex-col gap-2">
                                 <label class="text-[10px] font-bold text-primary-blue uppercase tracking-wide">FACILITY*</label>
@@ -561,7 +574,7 @@
                             </div>
 
                             <!-- Form Actions -->
-                            <div class="mt-2 flex items-center gap-4">
+                            <div class="mt-2 flex items-center justify-between">
                                 <button type="button" onclick="document.getElementById('report-facility').value=''; document.getElementById('report-desc').value=''; document.getElementById('report-image').value=''; document.getElementById('report-image-name').textContent='Click to upload image or drag and drop';" class="bg-[#e53e3e] hover:bg-red-600 text-white px-8 py-2.5 rounded text-[13px] font-bold transition-all uppercase shadow-sm">
                                     CANCEL
                                 </button>
@@ -598,6 +611,7 @@
                                 </table>
                             </div>
                         </div>
+                        </div>
 
                     </div>
                 </div>
@@ -610,10 +624,25 @@
                         <span>/</span>
                         <span class="text-primary-blue font-medium">Announcement</span>
                     </div>
-                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex items-center justify-center" style="min-height:420px;">
-                        <div class="text-center py-12">
-                            <i data-lucide="megaphone" class="w-10 h-10 text-gray-300 mx-auto mb-3"></i>
-                            <p class="text-sm text-gray-400">Announcements section coming soon.</p>
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col" style="min-height:420px;">
+                        
+                        <!-- Announcement Main Tab -->
+                        <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden">
+                            <button class="main-tab active px-8 py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
+                                Announcements
+                            </button>
+                        </div>
+                        
+                        <!-- Sub Tabs -->
+                        <div class="flex px-6 gap-8 border-b border-gray-100">
+                            <button class="sub-tab active py-3 text-sm font-medium text-gray-500 cursor-default">
+                                Recent Updates
+                            </button>
+                        </div>
+
+                        <!-- Card List -->
+                        <div id="announcement-list" class="p-6 flex-1 flex flex-col gap-4 bg-gray-50/30">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
                 </div>
@@ -1542,11 +1571,58 @@
             });
             lucide.createIcons();
         }
+        async function fetchAnnouncements() {
+            const { data, error } = await db
+                .from('Announcement')
+                .select('*')
+                .order('date_posted', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching announcements:', error);
+                return;
+            }
+
+            renderAnnouncements(data);
+        }
+
+        function renderAnnouncements(announcements) {
+            const container = document.getElementById('announcement-list');
+            if(!container) return;
+            container.innerHTML = '';
+
+            if (!announcements || announcements.length === 0) {
+                container.innerHTML = `<div class="text-center py-12">
+                            <i data-lucide="megaphone" class="w-10 h-10 text-gray-300 mx-auto mb-3"></i>
+                            <p class="text-sm text-gray-400">No announcements yet.</p>
+                        </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            announcements.forEach(a => {
+                const dateObj = new Date(a.date_posted);
+                // "Oct 24, 2026"
+                const datePosted = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-100 rounded-lg p-5 shadow-sm hover:shadow-md hover:border-primary-teal transition-all cursor-pointer group";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-primary-blue transition-colors">${a.title}</h4>
+                        <span class="bg-teal-50 text-primary-teal text-[10px] font-bold px-2.5 py-1 rounded-full border border-teal-100 w-fit">${datePosted}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 leading-relaxed">${a.content}</p>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
 
         // Init loads
         fetchBookings();
         fetchFacilities();
         fetchMyReports(); // Load user reports
+        fetchAnnouncements(); // Load announcements
     </script>
 </body>
 </html>
