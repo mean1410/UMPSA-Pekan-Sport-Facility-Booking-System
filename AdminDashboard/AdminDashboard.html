@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - UMPSA Sport Facility Booking System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabaseClient.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { blue: '#183e87', teal: '#009ca6' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* Sidebar nav states */
+        .nav-link { transition: color 0.15s, background 0.15s; color: #6b7280; }
+        .nav-link:hover  { color: #009ca6; background: #f0fdfe; }
+        .nav-link.active { color: #009ca6; background: #f0fdfe; }
+        .nav-link .nav-bar { opacity: 0; transition: opacity 0.15s; background: #009ca6; }
+        .nav-link:hover  .nav-bar, .nav-link.active .nav-bar { opacity: 1; }
+        .nav-link:hover  i, .nav-link.active i { color: #009ca6; }
+
+        /* Main tabs (dark blue) */
+        .main-tab { transition: background 0.15s, color 0.15s; }
+        .main-tab:hover  { background: #183e87; color: #fff; }
+        .main-tab.active { background: #183e87; color: #fff; }
+
+        /* Sub tabs */
+        .sub-tab { border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; }
+        .sub-tab:hover  { color: #009ca6; border-bottom-color: #009ca6; }
+        .sub-tab.active { color: #009ca6; border-bottom-color: #009ca6; }
+    </style>
+</head>
+
+<body class="font-sans antialiased text-gray-900 flex flex-col bg-white" style="height:100vh; overflow:hidden;">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2" style="pointer-events:none;"></div>
+    <style>
+        .toast-msg { pointer-events:auto; display:flex; align-items:center; gap:8px; padding:12px 20px; border-radius:8px; font-size:13px; font-weight:500; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,.15); animation:toastIn .3s ease; min-width:280px; max-width:420px; }
+        .toast-msg.success { background:#059669; }
+        .toast-msg.error   { background:#dc2626; }
+        .toast-msg.info    { background:#183e87; }
+        .toast-msg.warning { background:#d97706; }
+        @keyframes toastIn  { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes toastOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(40px)} }
+    </style>
+
+    <!-- ===== ROW 1: UMPSA Header ===== -->
+    <header class="bg-white shadow-sm flex-shrink-0 h-16 px-6 sm:px-12 flex items-center gap-4 z-50">
+        <a href="../index.html" class="flex items-center gap-4">
+            <img src="../ImagesForHeaderandFooter/Logo UMPSA header.png" alt="UMPSA Logo" class="h-10 w-auto object-contain">
+            <div class="hidden sm:block h-8 w-px bg-gray-200"></div>
+            <div class="hidden sm:flex flex-col justify-center">
+                <span class="font-bold text-primary-blue text-xs leading-tight tracking-wide">UNIVERSITI MALAYSIA PAHANG</span>
+                <span class="font-bold text-primary-blue text-xs leading-tight tracking-wide">AL-SULTAN ABDULLAH</span>
+            </div>
+        </a>
+    </header>
+
+    <!-- ===== ROW 2: Sidebar + Right Column ===== -->
+    <div class="flex flex-1 overflow-hidden">
+
+        <!-- ===== LEFT SIDEBAR ===== -->
+        <aside class="flex flex-col bg-white border-r border-gray-100 flex-shrink-0 overflow-y-auto" style="width:260px;">
+
+            <!-- Quick Search -->
+            <div class="px-4 flex items-center border-b border-gray-100 flex-shrink-0" style="height:56px; background:#f9fafb;">
+                <div class="relative w-full">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" placeholder="Quick Search"
+                        class="w-full bg-white border border-gray-200 text-gray-800 text-sm rounded-md pl-9 pr-3 py-2 outline-none focus:border-[#009ca6] focus:ring-1 focus:ring-[#009ca6] transition-all placeholder:text-gray-400">
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="py-4 px-3 flex flex-col gap-1 flex-shrink-0">
+                <a href="#" data-nav="admin-dashboard" class="nav-link active relative flex items-center gap-3 px-4 py-2.5 rounded-md overflow-hidden" onclick="showPage('admin-dashboard', this)">
+                    <div class="nav-bar absolute left-0 top-0 bottom-0 w-1 rounded-r"></div>
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i>
+                    <span class="text-sm font-medium">Admin Dashboard</span>
+                </a>
+                <a href="#" data-nav="manage-bookings" class="nav-link relative flex items-center gap-3 px-4 py-2.5 rounded-md overflow-hidden" onclick="showPage('manage-bookings', this)">
+                    <div class="nav-bar absolute left-0 top-0 bottom-0 w-1 rounded-r"></div>
+                    <i data-lucide="calendar-check" class="w-4 h-4 flex-shrink-0"></i>
+                    <span class="text-sm font-medium">Manage Bookings</span>
+                </a>
+                <a href="#" data-nav="manage-facilities" class="nav-link relative flex items-center gap-3 px-4 py-2.5 rounded-md overflow-hidden" onclick="showPage('manage-facilities', this)">
+                    <div class="nav-bar absolute left-0 top-0 bottom-0 w-1 rounded-r"></div>
+                    <i data-lucide="building-2" class="w-4 h-4 flex-shrink-0"></i>
+                    <span class="text-sm font-medium">Manage Facilities</span>
+                </a>
+                <a href="#" data-nav="manage-report" class="nav-link relative flex items-center gap-3 px-4 py-2.5 rounded-md overflow-hidden" onclick="showPage('manage-report', this)">
+                    <div class="nav-bar absolute left-0 top-0 bottom-0 w-1 rounded-r"></div>
+                    <i data-lucide="file-text" class="w-4 h-4 flex-shrink-0"></i>
+                    <span class="text-sm font-medium">Manage Report</span>
+                </a>
+                <a href="#" data-nav="manage-announcement" class="nav-link relative flex items-center gap-3 px-4 py-2.5 rounded-md overflow-hidden" onclick="showPage('manage-announcement', this)">
+                    <div class="nav-bar absolute left-0 top-0 bottom-0 w-1 rounded-r"></div>
+                    <i data-lucide="megaphone" class="w-4 h-4 flex-shrink-0"></i>
+                    <span class="text-sm font-medium">Manage Announcement</span>
+                </a>
+            </nav>
+
+            <div class="flex-1"></div>
+        </aside>
+
+        <!-- ===== RIGHT COLUMN ===== -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+
+            <!-- Gradient Topbar -->
+            <div class="flex items-center justify-between px-8 flex-shrink-0" style="height:56px; background: linear-gradient(90deg, #183e87 0%, #009ca6 100%);">
+                <span class="text-white font-semibold text-[15px]">UMPSA Pekan - Sport Facilities (Admin)</span>
+                <div class="relative group flex items-center gap-3 cursor-pointer">
+                    <span class="text-white/90 text-sm font-medium hidden sm:block" id="admin-email-display">admin@umpsa.edu.my</span>
+                    <div class="w-8 h-8 rounded-full bg-red-500 border-2 border-white/30 flex items-center justify-center text-white text-sm font-bold shadow" id="admin-avatar">A</div>
+                    <div class="absolute right-0 top-full h-3 w-48"></div>
+                    <div class="absolute right-0 top-[calc(100%+8px)] w-40 bg-white rounded-lg shadow-xl border border-gray-100 py-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 origin-top scale-95 group-hover:scale-100 z-50">
+                        <button onclick="handleLogout()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 flex items-center gap-2 transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Scrollable Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 pb-16">
+
+                <!-- ===================== PAGE: ADMIN DASHBOARD ===================== -->
+                <div id="page-admin-dashboard" class="p-6">
+                    <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
+                        <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                        <a href="../index.html" class="hover:text-[#009ca6] transition-colors">Home</a>
+                        <span>/</span>
+                        <span class="text-primary-blue font-medium">Admin Dashboard</span>
+                    </div>
+
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col" style="min-height:420px;">
+                        <!-- Main Tab -->
+                        <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden">
+                            <button class="main-tab active px-8 py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
+                                Overview
+                            </button>
+                        </div>
+                        <!-- Sub Tab -->
+                        <div class="flex px-6 gap-8 border-b border-gray-100">
+                            <button class="sub-tab active py-3 text-sm font-medium text-gray-500 cursor-default">
+                                Dashboard Summary
+                            </button>
+                        </div>
+
+                        <div class="p-6 flex-1 flex flex-col">
+                            <!-- Recent Reports -->
+                            <h3 class="text-sm font-semibold text-primary-blue mb-4">Pending Facility Reports</h3>
+                            <div class="border border-gray-100 rounded-lg overflow-x-auto bg-white mb-8">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100">
+                                        <tr>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Facility</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Issue Description</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-reports-rows" class="divide-y divide-gray-50">
+                                        <tr>
+                                            <td colspan="3" class="py-12 text-center text-sm text-gray-400 border-none">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Recent Bookings -->
+                            <h3 class="text-sm font-semibold text-primary-blue mb-4">Recent Bookings</h3>
+                            <div class="border border-gray-100 rounded-lg overflow-x-auto bg-white">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100">
+                                        <tr>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Invoice No</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">User Email</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Facility</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Date</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-bookings-rows" class="divide-y divide-gray-50">
+                                        <tr>
+                                            <td colspan="5" class="py-12 text-center text-sm text-gray-400 border-none">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== PAGE: MANAGE BOOKINGS ===================== -->
+                <div id="page-manage-bookings" class="p-6 hidden">
+                    <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
+                        <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                        <a href="../index.html" class="hover:text-[#009ca6] transition-colors">Home</a>
+                        <span>/</span>
+                        <span class="text-primary-blue font-medium">Manage Bookings</span>
+                    </div>
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col" style="min-height:420px;">
+                        <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden shadow-sm z-10">
+                            <button class="main-tab active px-8 py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
+                                Manage Bookings
+                            </button>
+                        </div>
+                        <div class="flex px-6 gap-8 border-b border-gray-100 z-10 bg-white shadow-sm relative">
+                            <button id="admin-subtab-all-bookings" class="sub-tab active py-3 text-sm font-medium text-gray-500" onclick="setAdminBookingsTab('all')">
+                                All Bookings
+                            </button>
+                            <button id="admin-subtab-confirmed" class="sub-tab py-3 text-sm font-medium text-gray-500" onclick="setAdminBookingsTab('confirmed')">
+                                Confirmed
+                            </button>
+                            <button id="admin-subtab-cancelled" class="sub-tab py-3 text-sm font-medium text-gray-500" onclick="setAdminBookingsTab('cancelled')">
+                                Cancelled
+                            </button>
+                        </div>
+                        <div class="px-6 py-4 border-b border-gray-100 flex-shrink-0 relative bg-white z-0">
+                            <div class="relative w-full">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </div>
+                                <input id="admin-booking-search" type="text" placeholder="Search invoices or emails..."
+                                    oninput="renderAdminBookings()"
+                                    class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md pl-9 pr-3 py-2 outline-none focus:bg-white focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col bg-gray-50/30">
+                            <div class="border border-gray-100 rounded-lg overflow-x-auto bg-white flex-1 relative shadow-sm">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100 bg-gray-50/50">
+                                        <tr>
+                                            <th class="px-6 py-4 font-medium text-left">Invoice No</th>
+                                            <th class="px-6 py-4 font-medium text-left">User Email</th>
+                                            <th class="px-6 py-4 font-medium text-left">Facility</th>
+                                            <th class="px-6 py-4 font-medium text-left">Date</th>
+                                            <th class="px-6 py-4 font-medium text-left">Status</th>
+                                            <th id="admin-action-col-bookings" class="px-6 py-4 font-medium text-left">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-booking-list-rows" class="divide-y divide-gray-50">
+                                        <tr>
+                                            <td colspan="6" class="py-12 text-center text-sm text-gray-400 border-none">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== PAGE: MANAGE FACILITIES ===================== -->
+                <div id="page-manage-facilities" class="p-6 hidden">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2 text-xs text-gray-400">
+                            <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                            <a href="../index.html" class="hover:text-[#009ca6] transition-colors">Home</a>
+                            <span>/</span>
+                            <span class="text-primary-blue font-medium">Manage Facilities</span>
+                        </div>
+                        <button onclick="adminAddFacility()" class="bg-primary-blue hover:bg-blue-900 text-white px-4 py-2 rounded-md font-medium text-xs transition-colors flex items-center gap-2 shadow-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add New Facility
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col" style="min-height:420px;">
+                        <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden shadow-sm z-10">
+                            <button class="main-tab active px-8 py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
+                                Manage Facilities
+                            </button>
+                        </div>
+                        <div class="flex px-6 gap-8 border-b border-gray-100 z-10 bg-white shadow-sm relative">
+                            <button id="admin-subtab-all-facilities" class="sub-tab active py-3 text-sm font-medium text-gray-500" onclick="setAdminFacilitiesTab('all')">
+                                All Facilities
+                            </button>
+                            <button id="admin-subtab-available-fac" class="sub-tab py-3 text-sm font-medium text-gray-500" onclick="setAdminFacilitiesTab('Available')">
+                                Available
+                            </button>
+                            <button id="admin-subtab-maintenance-fac" class="sub-tab py-3 text-sm font-medium text-gray-500" onclick="setAdminFacilitiesTab('In Maintenance')">
+                                In Maintenance
+                            </button>
+                        </div>
+                        <div class="px-6 py-4 border-b border-gray-100 flex-shrink-0 relative bg-white z-0">
+                            <div class="relative w-full">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </div>
+                                <input id="admin-facility-search" type="text" placeholder="Search facilities..."
+                                    oninput="renderAdminFacilities()"
+                                    class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md pl-9 pr-3 py-2 outline-none focus:bg-white focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col bg-gray-50/30">
+                            <div id="admin-facility-list-rows" class="grid grid-cols-1 gap-6">
+                                <div class="text-center py-12">
+                                    <p class="text-sm text-gray-400">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== PAGE: MANAGE REPORT ===================== -->
+                <div id="page-manage-report" class="p-6 hidden">
+                    <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
+                        <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                        <a href="../index.html" class="hover:text-[#009ca6] transition-colors">Home</a>
+                        <span>/</span>
+                        <span class="text-primary-blue font-medium">Manage Report</span>
+                    </div>
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col" style="min-height:420px;">
+                        <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden shadow-sm z-10">
+                            <button class="main-tab active px-8 py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
+                                Manage Report
+                            </button>
+                        </div>
+                        <div class="flex px-6 gap-8 border-b border-gray-100 z-10 bg-white shadow-sm relative">
+                            <button id="admin-subtab-pending-rep" class="sub-tab active py-3 text-sm font-medium text-gray-500" onclick="setAdminReportsTab('Pending')">
+                                Pending Reports
+                            </button>
+                            <button id="admin-subtab-resolved-rep" class="sub-tab py-3 text-sm font-medium text-gray-500" onclick="setAdminReportsTab('Resolved')">
+                                Resolved Reports
+                            </button>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col bg-gray-50/30">
+                            <div class="border border-gray-100 rounded-lg overflow-x-auto bg-white flex-1 relative shadow-sm">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100 bg-gray-50/50">
+                                        <tr>
+                                            <th class="px-6 py-4 font-medium text-left">Facility</th>
+                                            <th class="px-6 py-4 font-medium text-left">Description</th>
+                                            <th class="px-6 py-4 font-medium text-left">Date</th>
+                                            <th class="px-6 py-4 font-medium text-left">Proof</th>
+                                            <th class="px-6 py-4 font-medium text-left">Status</th>
+                                            <th id="admin-action-col-reports" class="px-6 py-4 font-medium text-left">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-report-list-rows" class="divide-y divide-gray-50">
+                                        <tr>
+                                            <td colspan="6" class="py-12 text-center text-sm text-gray-400 border-none">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== PAGE: MANAGE ANNOUNCEMENT ===================== -->
+                <div id="page-manage-announcement" class="p-6 hidden">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2 text-xs text-gray-400">
+                            <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                            <a href="../index.html" class="hover:text-[#009ca6] transition-colors">Home</a>
+                            <span>/</span>
+                            <span class="text-primary-blue font-medium">Manage Announcement</span>
+                        </div>
+                        <button onclick="adminAddAnnouncement()" class="bg-primary-blue hover:bg-blue-900 text-white px-4 py-2 rounded-md font-medium text-xs transition-colors flex items-center gap-2 shadow-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add Announcement
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col" style="min-height:420px;">
+                        <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden shadow-sm z-10">
+                            <button class="main-tab active px-8 py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
+                                Manage Announcement
+                            </button>
+                        </div>
+                        <div class="flex px-6 gap-8 border-b border-gray-100 z-10 bg-white shadow-sm relative">
+                            <button id="admin-subtab-all-announcements" class="sub-tab active py-3 text-sm font-medium text-gray-500 cursor-default">
+                                All Announcements
+                            </button>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col bg-gray-50/30">
+                            <div id="admin-announcement-list-rows" class="flex flex-col gap-4">
+                                <div class="text-center py-12">
+                                    <p class="text-sm text-gray-400">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+    <!-- ===================== CANCEL BOOKING MODAL ===================== -->
+    <div id="cancel-booking-modal" class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-lg overflow-hidden flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-bold text-primary-blue text-[15px]">Cancel Booking</h3>
+                <button onclick="closeCancelModal()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 bg-white">
+                <div class="bg-[#F27311] p-4 mb-5 rounded shadow-sm">
+                    <p class="text-[11px] text-white font-bold uppercase tracking-wide leading-snug">
+                        Admins may cancel confirmed bookings. Any cancelled booking will include an explanatory reason.
+                    </p>
+                </div>
+                
+                <div class="flex flex-col gap-2">
+                    <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Enter Cancellation Reason*</label>
+                    <textarea id="cancel-reason-input" placeholder="e.g. Emergency Maintenance" 
+                        class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all h-24 resize-none placeholder:text-gray-400"></textarea>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                <button onclick="closeCancelModal()" class="bg-primary-blue hover:bg-blue-900 text-white px-6 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-colors uppercase shadow-sm">
+                    Back
+                </button>
+                <button id="confirm-cancel-btn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-all uppercase shadow-sm">
+                    Confirm Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== ADD ANNOUNCEMENT MODAL ===================== -->
+    <div id="add-announcement-modal" class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-lg overflow-hidden flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-bold text-primary-blue text-[15px]">Add Announcement</h3>
+                <button onclick="closeAnnouncementModal()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 bg-white">
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Title *</label>
+                        <input id="ann-title" type="text" placeholder="e.g. Facility Maintenance Notice"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Content *</label>
+                        <textarea id="ann-content" placeholder="Enter announcement details..."
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all h-32 resize-none placeholder:text-gray-400"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                <button onclick="closeAnnouncementModal()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-colors uppercase shadow-sm">
+                    Back
+                </button>
+                <button onclick="submitAnnouncement()" class="bg-primary-blue hover:bg-blue-900 text-white px-6 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-all uppercase shadow-sm">
+                    Post Announcement
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== ADD FACILITY MODAL ===================== -->
+    <div id="add-facility-modal" class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+                <h3 class="font-bold text-primary-blue text-[15px]">Add New Facility</h3>
+                <button onclick="closeFacilityModal()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 bg-white overflow-y-auto">
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Facility Name *</label>
+                        <input id="fac-name" type="text" placeholder="e.g. Futsal Court"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Type *</label>
+                            <select id="fac-type"
+                                class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all">
+                                <option value="Indoor">Indoor</option>
+                                <option value="Outdoor">Outdoor</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Status *</label>
+                            <select id="fac-status"
+                                class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all">
+                                <option value="Available">Available</option>
+                                <option value="In Maintenance">In Maintenance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Location *</label>
+                        <input id="fac-location" type="text" placeholder="e.g. Block B, UMPSA Pekan"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Max Capacity *</label>
+                        <input id="fac-capacity" type="number" min="1" placeholder="e.g. 30"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Facility Image <span class="text-gray-400 normal-case font-normal">(optional)</span></label>
+                        <input type="file" id="fac-image-file" accept="image/*" class="hidden" onchange="handleFacImageFile(this, 'fac-image-preview')">
+                        <label for="fac-image-file" id="fac-image-dropzone" class="w-full border-2 border-dashed border-gray-200 rounded-md bg-gray-50 flex flex-col items-center justify-center py-4 cursor-pointer hover:bg-gray-100 hover:border-primary-teal transition-colors">
+                            <i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400 mb-1"></i>
+                            <span id="fac-image-preview" class="text-primary-teal text-xs font-medium">Click to upload image or drag and drop</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
+                <button onclick="closeFacilityModal()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-colors uppercase shadow-sm">
+                    Back
+                </button>
+                <button onclick="submitFacility()" class="bg-primary-blue hover:bg-blue-900 text-white px-6 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-all uppercase shadow-sm">
+                    Add Facility
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== EDIT FACILITY MODAL ===================== -->
+    <div id="edit-facility-modal" class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+                <h3 class="font-bold text-primary-blue text-[15px]">Edit Facility</h3>
+                <button onclick="closeEditFacilityModal()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 bg-white overflow-y-auto">
+                <input id="edit-fac-id" type="hidden">
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Facility Name *</label>
+                        <input id="edit-fac-name" type="text" placeholder="e.g. Futsal Court"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Type *</label>
+                            <select id="edit-fac-type"
+                                class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all">
+                                <option value="Indoor">Indoor</option>
+                                <option value="Outdoor">Outdoor</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Status *</label>
+                            <select id="edit-fac-status"
+                                class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all">
+                                <option value="Available">Available</option>
+                                <option value="In Maintenance">In Maintenance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Location *</label>
+                        <input id="edit-fac-location" type="text" placeholder="e.g. Block B, UMPSA Pekan"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Max Capacity *</label>
+                        <input id="edit-fac-capacity" type="number" min="1" placeholder="e.g. 30"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-3 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Facility Image <span class="text-gray-400 normal-case font-normal">(optional)</span></label>
+                        <input type="file" id="edit-fac-image-file" accept="image/*" class="hidden" onchange="handleFacImageFile(this, 'edit-fac-image-preview')">
+                        <label for="edit-fac-image-file" id="edit-fac-image-dropzone" class="w-full border-2 border-dashed border-gray-200 rounded-md bg-gray-50 flex flex-col items-center justify-center py-4 cursor-pointer hover:bg-gray-100 hover:border-primary-teal transition-colors">
+                            <i data-lucide="upload-cloud" class="w-5 h-5 text-gray-400 mb-1"></i>
+                            <span id="edit-fac-image-preview" class="text-primary-teal text-xs font-medium">Click to upload image or drag and drop</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
+                <button onclick="closeEditFacilityModal()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-colors uppercase shadow-sm">
+                    Back
+                </button>
+                <button onclick="submitEditFacility()" class="bg-primary-blue hover:bg-blue-900 text-white px-6 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-all uppercase shadow-sm">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 left-0 w-full bg-[#183e87] text-white/70 text-xs px-6 py-3 z-40">
+        UMPSA Pekan - Sport Facility Booking System © 2026
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // ---- Toast Notification ----
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast-msg ${type}`;
+            const icons = { success: 'check-circle', error: 'alert-circle', info: 'info', warning: 'alert-triangle' };
+            toast.innerHTML = `<i data-lucide="${icons[type] || 'info'}" style="width:16px;height:16px;flex-shrink:0"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({ nodes: [toast] });
+            setTimeout(() => { toast.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // ---- Auth Check ----
+        const currentAdmin = {
+            id: sessionStorage.getItem('admin_id') || localStorage.getItem('admin_id'),
+            email: sessionStorage.getItem('admin_email') || localStorage.getItem('admin_email'),
+            role: sessionStorage.getItem('admin_role') || localStorage.getItem('admin_role')
+        };
+
+        if (!currentAdmin.id) {
+            window.location.href = '../LogInPage/LogInPage.html';
+        } else {
+            document.getElementById('admin-email-display').textContent = currentAdmin.email;
+            document.getElementById('admin-avatar').textContent = currentAdmin.email.charAt(0).toUpperCase();
+        }
+
+        // ---- Logout ----
+        function handleLogout() {
+            sessionStorage.clear();
+            localStorage.clear();
+            window.location.href = '../LogInPage/LogInPage.html';
+        }
+
+        // ---- App Shell: show/hide pages ----
+        const pages = ['admin-dashboard', 'manage-bookings', 'manage-facilities', 'manage-report', 'manage-announcement'];
+
+        function showPage(pageId, navEl) {
+            pages.forEach(p => {
+                const el = document.getElementById('page-' + p);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById('page-' + pageId);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+            const sidebarBtn = document.querySelector(`.nav-link[onclick*="showPage('${pageId}'"]`);
+            if (sidebarBtn) sidebarBtn.classList.add('active');
+
+            if (pageId === 'admin-dashboard') {
+                fetchRecentReports();
+                fetchRecentBookings();
+            } else if (pageId === 'manage-bookings') {
+                fetchAdminBookings();
+            } else if (pageId === 'manage-facilities') {
+                fetchAdminFacilities();
+            } else if (pageId === 'manage-report') {
+                fetchAdminAllReports();
+            } else if (pageId === 'manage-announcement') {
+                fetchAdminAnnouncements();
+            }
+        }
+
+        // ---- Fetch Recent Reports ----
+        async function fetchRecentReports() {
+            const { data, error } = await db
+                .from('Report')
+                .select(`
+                    *,
+                    Facility ( name )
+                `)
+                .eq('status', 'Pending')
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            if (error) {
+                console.error('Error fetching recent reports:', error);
+                return;
+            }
+            renderRecentReports(data);
+        }
+
+        function renderRecentReports(reports) {
+            const container = document.getElementById('recent-reports-rows');
+            container.innerHTML = '';
+
+            if (!reports || reports.length === 0) {
+                container.innerHTML = `<tr><td colspan="3" class="py-12 text-center text-sm text-gray-400 border-none">No pending reports.</td></tr>`;
+                return;
+            }
+
+            reports.forEach(r => {
+                const facilityName = r.Facility ? r.Facility.name : 'Unknown';
+                const reportDate = new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-primary-teal text-xs">${facilityName}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600 max-w-xs truncate" title="${r.issue_description}">${r.issue_description}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${reportDate}</td>
+                `;
+                container.appendChild(tr);
+            });
+        }
+
+        window.resolveReport = async function(reportId) {
+            if(!confirm('Mark this report as resolved?')) return;
+            const { error } = await db
+                .from('Report')
+                .update({ status: 'Resolved', admin_id: currentAdmin.id })
+                .eq('report_id', reportId);
+            
+            if(!error) {
+                fetchRecentReports();
+            } else {
+                showToast('Error resolving report.', 'error');
+            }
+        }
+
+        // ---- Fetch Recent Bookings ----
+        async function fetchRecentBookings() {
+            const { data, error } = await db
+                .from('Booking')
+                .select(`
+                    *,
+                    User ( email ),
+                    Facility ( name )
+                `)
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            if (error) {
+                console.error('Error fetching recent bookings:', error);
+                return;
+            }
+
+            renderRecentBookings(data);
+        }
+
+        function renderRecentBookings(bookings) {
+            const container = document.getElementById('recent-bookings-rows');
+            container.innerHTML = '';
+
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-sm text-gray-400 border-none">No recent bookings.</td></tr>`;
+                return;
+            }
+
+            bookings.forEach(b => {
+                const userEmail = b.User ? b.User.email : 'Unknown';
+                const facilityName = b.Facility ? b.Facility.name : 'Unknown';
+                const bookingDate = new Date(b.date).toLocaleDateString();
+                let statusHtml = '';
+                const baseStyle = "font-bold uppercase inline-block text-[10px]";
+                
+                if (b.status === 'Confirmed') {
+                    statusHtml = `<span class="${baseStyle} text-primary-teal">CONFIRMED</span>`;
+                } else if (b.status === 'Cancelled') {
+                    statusHtml = `<span class="${baseStyle} text-red-500">CANCELLED</span>`;
+                } else if (b.status === 'Pending') {
+                    statusHtml = `<span class="${baseStyle} text-yellow-500">PENDING</span>`;
+                } else {
+                    statusHtml = `<span class="${baseStyle} text-gray-600">${b.status?.toUpperCase() || '-'}</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-bold text-primary-blue text-xs">${b.invoice_number || '—'}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${userEmail}</td>
+                    <td class="px-6 py-4 text-xs text-primary-teal font-medium">${facilityName}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${bookingDate}</td>
+                    <td class="px-6 py-4">${statusHtml}</td>
+                `;
+                container.appendChild(tr);
+            });
+        }
+
+        // ---- Manage Bookings Logic ----
+        let currentAdminBookingTab = 'all';
+        let allAdminBookings = [];
+
+        function setAdminBookingsTab(tab) {
+            currentAdminBookingTab = tab;
+            document.querySelectorAll('#page-manage-bookings .sub-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('admin-subtab-' + (tab === 'all' ? 'all-bookings' : tab)).classList.add('active');
+
+            const actionCol = document.getElementById('admin-action-col-bookings');
+            if (tab === 'cancelled') {
+                actionCol.classList.add('hidden');
+            } else {
+                actionCol.classList.remove('hidden');
+            }
+
+            renderAdminBookings();
+        }
+
+        async function fetchAdminBookings() {
+            const { data, error } = await db
+                .from('Booking')
+                .select(`
+                    booking_id,
+                    num_of_participant,
+                    date,
+                    end_date,
+                    invoice_number,
+                    created_at,
+                    status,
+                    cancel_reason,
+                    User ( email ),
+                    Facility ( name )
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching admin bookings:', error);
+                return;
+            }
+
+            allAdminBookings = data;
+            renderAdminBookings();
+        }
+
+        function renderAdminBookings() {
+            const container = document.getElementById('admin-booking-list-rows');
+            container.innerHTML = '';
+
+            const statusMap = {
+                'confirmed': 'Confirmed',
+                'cancelled': 'Cancelled'
+            };
+            const searchVal = document.getElementById('admin-booking-search')?.value.toLowerCase() || '';
+            const targetStatus = statusMap[currentAdminBookingTab];
+            let filtered = currentAdminBookingTab === 'all' 
+                ? allAdminBookings 
+                : allAdminBookings.filter(b => b.status === targetStatus);
+                
+            if (searchVal) {
+                filtered = filtered.filter(b => 
+                    (b.invoice_number && b.invoice_number.toLowerCase().includes(searchVal)) ||
+                    (b.User && b.User.email && b.User.email.toLowerCase().includes(searchVal)) ||
+                    (b.Facility && b.Facility.name && b.Facility.name.toLowerCase().includes(searchVal))
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<tr><td colspan="${currentAdminBookingTab === 'cancelled' ? 5 : 6}" class="py-12 text-center text-sm text-gray-400 border-none">No records found.</td></tr>`;
+                return;
+            }
+
+            // Group by invoice
+            const grouped = {};
+            filtered.forEach(b => {
+                const inv = b.invoice_number || `INV-${b.booking_id.toString().padStart(5, '0')}`;
+                if (!grouped[inv]) {
+                    grouped[inv] = {
+                        invoice: inv,
+                        facility: b.Facility ? b.Facility.name : 'Unknown',
+                        userEmail: b.User ? b.User.email : 'Unknown',
+                        created_at: b.created_at,
+                        dateRange: [b.date],
+                        status: b.status,
+                        cancel_reason: b.cancel_reason
+                    };
+                    if (b.end_date && b.end_date !== b.date) grouped[inv].dateRange.push(b.end_date);
+                } else {
+                    if (!grouped[inv].dateRange.includes(b.date)) grouped[inv].dateRange.push(b.date);
+                    if (b.end_date && !grouped[inv].dateRange.includes(b.end_date)) grouped[inv].dateRange.push(b.end_date);
+                }
+            });
+
+            const baseStyle = "font-bold uppercase inline-block text-[10px]";
+
+            Object.values(grouped).forEach(g => {
+                g.dateRange.sort();
+                const eventDateDisplay = g.dateRange.length > 1 
+                    ? `${g.dateRange[0]} - ${g.dateRange[g.dateRange.length-1]}`
+                    : g.dateRange[0];
+
+                let statusHtml = '';
+                if (g.status === 'Confirmed') statusHtml = `<span class="${baseStyle} text-primary-teal">CONFIRMED</span>`;
+                else if (g.status === 'Cancelled') statusHtml = `<div class="flex flex-col gap-1 items-start"><span class="${baseStyle} text-red-500">CANCELLED</span>${g.cancel_reason ? `<span class="text-[9px] text-gray-400 max-w-[150px] truncate" title="${g.cancel_reason}">Reason: ${g.cancel_reason}</span>` : ''}</div>`;
+                else if (g.status === 'Pending') statusHtml = `<span class="${baseStyle} text-yellow-500">PENDING</span>`;
+                else statusHtml = `<span class="${baseStyle} text-gray-600">${g.status?.toUpperCase() || '-'}</span>`;
+
+                let actionHtml = '';
+                let isCancelled = g.status === 'Cancelled';
+
+                if (g.status === 'Confirmed') {
+                    actionHtml = `<td class="px-6 py-4"><button onclick="adminCancelBooking('${g.invoice}')" class="border border-red-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-red-500 px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase">CANCEL</button></td>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-bold text-primary-blue text-xs">${g.invoice}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${g.userEmail}</td>
+                    <td class="px-6 py-4 font-medium text-primary-teal text-xs">${g.facility}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${eventDateDisplay}</td>
+                    <td class="px-6 flex flex-col justify-center py-4 h-full min-h-[72px]">${statusHtml}</td>
+                    ${!isCancelled ? actionHtml : ''}
+                `;
+                container.appendChild(tr);
+            });
+        }
+
+        let invoiceToCancel = null;
+
+        window.adminCancelBooking = function(invoice) {
+            invoiceToCancel = invoice;
+            document.getElementById('cancel-reason-input').value = '';
+            document.getElementById('cancel-booking-modal').classList.remove('hidden');
+        };
+
+        window.closeCancelModal = function() {
+            document.getElementById('cancel-booking-modal').classList.add('hidden');
+            invoiceToCancel = null;
+        };
+
+        document.getElementById('confirm-cancel-btn').addEventListener('click', async () => {
+            if (!invoiceToCancel) return;
+            const reason = document.getElementById('cancel-reason-input').value.trim();
+            
+            if (reason === '') {
+                showToast('Cancellation reason is required.', 'warning');
+                return;
+            }
+
+            const { error } = await db
+                .from('Booking')
+                .update({ status: 'Cancelled', cancel_reason: reason })
+                .eq('invoice_number', invoiceToCancel);
+
+            if (error) {
+                showToast('Failed to cancel booking: ' + error.message, 'error');
+            } else {
+                closeCancelModal();
+                fetchAdminBookings();
+                fetchRecentBookings();
+            }
+        });
+
+        // ---- Manage Facilities Logic ----
+        let currentAdminFacilityTab = 'all';
+        let allAdminFacilities = [];
+
+        window.setAdminFacilitiesTab = function(tab) {
+            currentAdminFacilityTab = tab;
+            document.querySelectorAll('#page-manage-facilities .sub-tab').forEach(el => el.classList.remove('active'));
+            let tabId = tab === 'all' ? 'all-facilities' : tab === 'Available' ? 'available-fac' : 'maintenance-fac';
+            document.getElementById('admin-subtab-' + tabId).classList.add('active');
+            renderAdminFacilities();
+        }
+
+        window.fetchAdminFacilities = async function() {
+            const { data, error } = await db.from('Facility').select('*').order('name');
+            if (error) {
+                console.error('Error fetching admin facilities:', error);
+                return;
+            }
+            allAdminFacilities = data;
+            renderAdminFacilities();
+        }
+
+        window.renderAdminFacilities = function() {
+            const container = document.getElementById('admin-facility-list-rows');
+            container.innerHTML = '';
+
+            const searchVal = document.getElementById('admin-facility-search')?.value.toLowerCase() || '';
+            let filtered = currentAdminFacilityTab === 'all' 
+                ? allAdminFacilities 
+                : allAdminFacilities.filter(f => f.status === currentAdminFacilityTab);
+                
+            if (searchVal) {
+                filtered = filtered.filter(f => 
+                    (f.name && f.name.toLowerCase().includes(searchVal)) ||
+                    (f.location && f.location.toLowerCase().includes(searchVal))
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 border border-gray-100 rounded-lg bg-white shadow-sm w-full">
+                        <i data-lucide="building-2" class="w-10 h-10 text-gray-300 mx-auto mb-3"></i>
+                        <p class="text-sm text-gray-400">No facilities found.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            filtered.forEach(f => {
+                const statusConfig = {
+                    'Available': { color: 'text-primary-teal', icon: 'check-circle' },
+                    'In Maintenance': { color: 'text-yellow-600', icon: 'alert-triangle' }
+                };
+                const status = statusConfig[f.status] || { color: 'text-gray-500', icon: 'help-circle' };
+
+                const card = document.createElement('div');
+                card.className = 'facility-card bg-white border border-gray-100 rounded-xl p-6 flex flex-col md:flex-row items-center gap-8 hover:shadow-md transition-all group';
+                
+                card.innerHTML = `
+                    <!-- Left: Image -->
+                    <div class="w-full md:w-64 h-40 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden relative border border-gray-100">
+                        <img src="${f.image_url || '../ImagesForFacilities/placeholder.jpg'}" 
+                             alt="${f.name}" 
+                             class="absolute inset-0 w-full h-full object-cover">
+                    </div>
+
+                    <!-- Middle: Info -->
+                    <div class="flex-1 flex flex-col gap-3">
+                        <h4 class="text-lg font-bold text-primary-blue">${f.name}</h4>
+                        
+                        <div class="flex flex-col gap-2">
+                            <!-- Location -->
+                            <div class="flex items-center gap-2.5 text-gray-500 text-[13px]">
+                                <i data-lucide="map-pin" class="w-4 h-4 opacity-70"></i>
+                                <span>${f.location}</span>
+                            </div>
+                            
+                            <!-- Category -->
+                            <div class="flex items-center gap-2.5 text-gray-500 text-[13px]">
+                                <i data-lucide="grid" class="w-4 h-4 opacity-70"></i>
+                                <span>Category: ${f.type}</span>
+                            </div>
+                            
+                            <!-- Max Capacity -->
+                            <div class="flex items-center gap-2.5 text-gray-500 text-[13px]">
+                                <i data-lucide="users" class="w-4 h-4 opacity-70"></i>
+                                <span>Max. Capacity: ${f.max_capacity} person</span>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="flex items-center gap-2.5 text-[13px] ${status.color} font-medium mt-1">
+                                <i data-lucide="${status.icon}" class="w-4 h-4"></i>
+                                <span>Status: ${f.status}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Button -->
+                    <div class="flex-shrink-0 flex flex-col gap-3">
+                        <button onclick="adminEditFacility(${f.facility_id})" 
+                                class="bg-primary-blue hover:bg-blue-900 text-white px-8 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-all tracking-wide uppercase shadow-sm">
+                            EDIT
+                        </button>
+                        <button onclick="adminDeleteFacility(${f.facility_id}, '${f.name.replace(/'/g, "\\'")}')" 
+                                class="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-md font-bold text-[10px] sm:text-xs transition-all uppercase shadow-sm">
+                            DELETE
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // ---- Image Upload Helper ----
+        window.handleFacImageFile = function(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                preview.textContent = input.files[0].name;
+            } else {
+                preview.textContent = 'Click to upload image or drag and drop';
+            }
+        }
+
+        async function uploadFacilityImage(file) {
+            const fileName = `facility_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
+            const { data, error } = await db.storage.from('facility-images').upload(fileName, file);
+            if (error) throw error;
+            const { data: urlData } = db.storage.from('facility-images').getPublicUrl(fileName);
+            return urlData.publicUrl;
+        }
+
+        async function resolveFacilityImage(fileInputId) {
+            const fileInput = document.getElementById(fileInputId);
+            if (fileInput.files && fileInput.files[0]) {
+                try {
+                    return await uploadFacilityImage(fileInput.files[0]);
+                } catch (e) {
+                    console.warn('Image upload failed:', e.message);
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        window.adminAddFacility = function() {
+            document.getElementById('fac-name').value = '';
+            document.getElementById('fac-type').value = 'Indoor';
+            document.getElementById('fac-status').value = 'Available';
+            document.getElementById('fac-location').value = '';
+            document.getElementById('fac-capacity').value = '';
+            document.getElementById('fac-image-file').value = '';
+            document.getElementById('fac-image-preview').textContent = 'Click to upload image or drag and drop';
+            document.getElementById('add-facility-modal').classList.remove('hidden');
+        }
+
+        window.closeFacilityModal = function() {
+            document.getElementById('add-facility-modal').classList.add('hidden');
+        }
+
+        window.submitFacility = async function() {
+            const name = document.getElementById('fac-name').value.trim();
+            const type = document.getElementById('fac-type').value;
+            const status = document.getElementById('fac-status').value;
+            const location = document.getElementById('fac-location').value.trim();
+            const capacity = parseInt(document.getElementById('fac-capacity').value);
+
+            if (!name || !location || !capacity) {
+                showToast('Please fill in all required fields.', 'warning');
+                return;
+            }
+
+            const imageUrl = await resolveFacilityImage('fac-image-file');
+
+            const { error } = await db.from('Facility').insert({
+                admin_id: currentAdmin.id,
+                name,
+                type,
+                status,
+                location,
+                max_capacity: capacity,
+                image_url: imageUrl
+            });
+
+            if (error) {
+                showToast('Failed to add facility: ' + error.message, 'error');
+            } else {
+                closeFacilityModal();
+                showToast('Facility added successfully!', 'success');
+                fetchAdminFacilities();
+            }
+        }
+
+        window.adminEditFacility = async function(id) {
+            const facility = allAdminFacilities.find(f => f.facility_id === id);
+            if (!facility) { showToast('Facility not found.', 'error'); return; }
+
+            document.getElementById('edit-fac-id').value = id;
+            document.getElementById('edit-fac-name').value = facility.name;
+            document.getElementById('edit-fac-type').value = facility.type;
+            document.getElementById('edit-fac-status').value = facility.status;
+            document.getElementById('edit-fac-location').value = facility.location;
+            document.getElementById('edit-fac-capacity').value = facility.max_capacity;
+            document.getElementById('edit-fac-image-file').value = '';
+            document.getElementById('edit-fac-image-preview').textContent = 'Click to upload image or drag and drop';
+            document.getElementById('edit-facility-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        window.closeEditFacilityModal = function() {
+            document.getElementById('edit-facility-modal').classList.add('hidden');
+        }
+
+        window.submitEditFacility = async function() {
+            const id = parseInt(document.getElementById('edit-fac-id').value);
+            const name = document.getElementById('edit-fac-name').value.trim();
+            const type = document.getElementById('edit-fac-type').value;
+            const status = document.getElementById('edit-fac-status').value;
+            const location = document.getElementById('edit-fac-location').value.trim();
+            const capacity = parseInt(document.getElementById('edit-fac-capacity').value);
+
+            if (!name || !location || !capacity) {
+                showToast('Please fill in all required fields.', 'warning');
+                return;
+            }
+
+            const imageUrl = await resolveFacilityImage('edit-fac-image-file');
+
+            const { error } = await db.from('Facility').update({
+                name,
+                type,
+                status,
+                location,
+                max_capacity: capacity,
+                image_url: imageUrl
+            }).eq('facility_id', id);
+
+            if (error) {
+                showToast('Failed to update facility: ' + error.message, 'error');
+            } else {
+                closeEditFacilityModal();
+                showToast('Facility updated successfully!', 'success');
+                fetchAdminFacilities();
+            }
+        }
+
+        window.adminDeleteFacility = async function(id, name) {
+            if (!confirm(`Are you sure you want to delete facility: ${name}?`)) return;
+
+            const { error } = await db.from('Facility').delete().eq('facility_id', id);
+
+            if (error) {
+                showToast('Failed to delete facility: ' + error.message, 'error');
+            } else {
+                showToast('Facility deleted successfully.', 'success');
+                fetchAdminFacilities();
+            }
+        }
+
+        // ---- Manage Reports Logic ----
+        let currentAdminReportTab = 'Pending';
+        let allAdminReports = [];
+
+        window.setAdminReportsTab = function(tab) {
+            currentAdminReportTab = tab;
+            document.querySelectorAll('#page-manage-report .sub-tab').forEach(el => el.classList.remove('active'));
+            let tabId = tab === 'Pending' ? 'pending-rep' : 'resolved-rep';
+            document.getElementById('admin-subtab-' + tabId).classList.add('active');
+            const actionCol = document.getElementById('admin-action-col-reports');
+            if (actionCol) {
+                if (tab === 'Resolved') {
+                    actionCol.classList.add('hidden');
+                } else {
+                    actionCol.classList.remove('hidden');
+                }
+            }
+
+            renderAdminReports();
+        }
+
+        window.fetchAdminAllReports = async function() {
+            const { data, error } = await db
+                .from('Report')
+                .select(`
+                    report_id,
+                    issue_description,
+                    created_at,
+                    status,
+                    image_proof,
+                    Facility ( name )
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching admin reports:', error);
+                return;
+            }
+
+            allAdminReports = data;
+            renderAdminReports();
+        }
+
+        window.renderAdminReports = function() {
+            const container = document.getElementById('admin-report-list-rows');
+            container.innerHTML = '';
+
+            const filtered = allAdminReports.filter(r => r.status === currentAdminReportTab);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<tr><td colspan="${currentAdminReportTab === 'Resolved' ? 5 : 6}" class="py-12 text-center text-sm text-gray-400 border-none">No records found.</td></tr>`;
+                return;
+            }
+
+            const baseStyle = "border px-4 py-1.5 rounded text-[10px] font-bold uppercase inline-block text-center";
+
+            filtered.forEach(r => {
+                const facilityName = r.Facility ? r.Facility.name : 'Unknown';
+                const reportDate = new Date(r.created_at).toLocaleDateString();
+                
+                const baseStyle = "font-bold uppercase inline-block text-[10px]";
+                let statusHtml = '';
+                if (r.status === 'Resolved') {
+                    statusHtml = `<span class="${baseStyle} text-primary-teal">RESOLVED</span>`;
+                } else {
+                    statusHtml = `<span class="${baseStyle} text-yellow-500">PENDING</span>`;
+                }
+
+                let proofHtml = `<span class="text-xs text-gray-400">No Image</span>`;
+                if (r.image_proof) {
+                    proofHtml = `<a href="${r.image_proof}" target="_blank" class="text-primary-blue hover:underline text-[10px] font-medium flex items-center gap-1"><i data-lucide="image" class="w-3 h-3"></i> VIEW</a>`;
+                }
+
+                let actionHtml = '';
+                if (r.status === 'Pending') {
+                    actionHtml = `<td class="px-6 py-4"><button onclick="adminResolveFullReport(${r.report_id})" class="border border-blue-200 hover:bg-primary-blue hover:text-white hover:border-primary-blue text-primary-blue px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase">RESOLVE</button></td>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-primary-teal text-xs">${facilityName}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600 max-w-xs truncate" title="${r.issue_description}">${r.issue_description}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600">${reportDate}</td>
+                    <td class="px-6 py-4">${proofHtml}</td>
+                    <td class="px-6 py-4">${statusHtml}</td>
+                    ${actionHtml}
+                `;
+                container.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        window.adminResolveFullReport = async function(reportId) {
+            if (!confirm('Mark this report as resolved?')) return;
+
+            const { error } = await db
+                .from('Report')
+                .update({ status: 'Resolved' })
+                .eq('report_id', reportId);
+
+            if (error) {
+                showToast('Failed to resolve report: ' + error.message, 'error');
+            } else {
+                showToast('Report marked as resolved.', 'success');
+                fetchAdminAllReports();
+                fetchRecentReports();
+            }
+        }
+
+        // ---- Manage Announcements Logic ----
+        let allAdminAnnouncements = [];
+
+        window.fetchAdminAnnouncements = async function() {
+            const { data, error } = await db
+                .from('Announcement')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching admin announcements:', error);
+                return;
+            }
+
+            allAdminAnnouncements = data;
+            renderAdminAnnouncements();
+        }
+
+        window.renderAdminAnnouncements = function() {
+            const container = document.getElementById('admin-announcement-list-rows');
+            container.innerHTML = '';
+
+            if (allAdminAnnouncements.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 border border-gray-100 rounded-lg bg-white shadow-sm">
+                        <i data-lucide="megaphone" class="w-10 h-10 text-gray-300 mx-auto mb-3"></i>
+                        <p class="text-sm text-gray-400">No announcements found.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            allAdminAnnouncements.forEach(a => {
+                const date = new Date(a.created_at).toLocaleDateString();
+                const card = document.createElement('div');
+                card.className = 'facility-card bg-white border border-gray-100 rounded-xl p-6 pb-16 flex flex-col md:flex-row items-center gap-8 shadow-sm hover:shadow-md transition-all relative overflow-hidden group';
+                
+                card.innerHTML = `
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-blue rounded-l-xl"></div>
+                    <div class="flex-1 flex flex-col gap-3 pl-2 w-full">
+                        <h4 class="text-lg font-bold text-primary-blue">${a.title}</h4>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center gap-2.5 text-gray-500 text-[13px]">
+                                <i data-lucide="calendar" class="w-4 h-4 opacity-70"></i>
+                                <span>Posted on: ${date}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2 line-clamp-3">${a.content}</p>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-5 right-5 flex gap-3">
+                        <button onclick="adminEditAnnouncement(${a.announcement_id})" class="bg-primary-blue hover:bg-blue-900 text-white text-[10px] font-bold uppercase transition-all px-4 py-1.5 rounded shadow-sm">EDIT</button>
+                        <button onclick="adminDeleteAnnouncement(${a.announcement_id})" class="bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold uppercase transition-all px-4 py-1.5 rounded shadow-sm">DELETE</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        window.adminAddAnnouncement = function() {
+            document.getElementById('ann-title').value = '';
+            document.getElementById('ann-content').value = '';
+            document.getElementById('add-announcement-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        window.closeAnnouncementModal = function() {
+            document.getElementById('add-announcement-modal').classList.add('hidden');
+        }
+
+        window.submitAnnouncement = async function() {
+            const title = document.getElementById('ann-title').value.trim();
+            const content = document.getElementById('ann-content').value.trim();
+
+            if (!title || !content) {
+                showToast('Please fill in all required fields.', 'warning');
+                return;
+            }
+
+            const { error } = await db.from('Announcement').insert({
+                admin_id: currentAdmin.id,
+                title,
+                content
+            });
+
+            if (error) {
+                showToast('Failed to post announcement: ' + error.message, 'error');
+            } else {
+                closeAnnouncementModal();
+                showToast('Announcement posted successfully!', 'success');
+                fetchAdminAnnouncements();
+            }
+        }
+
+        window.adminDeleteAnnouncement = async function(id) {
+            if (!confirm('Are you sure you want to delete this announcement?')) return;
+
+            const { error } = await db.from('Announcement').delete().eq('announcement_id', id);
+
+            if (error) {
+                showToast('Failed to delete announcement: ' + error.message, 'error');
+            } else {
+                showToast('Announcement deleted successfully.', 'success');
+                fetchAdminAnnouncements();
+            }
+        }
+
+        // ---- Init ----
+        fetchRecentReports();
+        fetchRecentBookings();
+    </script>
+</body>
+</html>

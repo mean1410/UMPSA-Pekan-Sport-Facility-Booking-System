@@ -58,6 +58,18 @@
 
 <body class="font-sans antialiased text-gray-900 flex flex-col bg-white" style="height:100vh; overflow:hidden;">
 
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2" style="pointer-events:none;"></div>
+    <style>
+        .toast-msg { pointer-events:auto; display:flex; align-items:center; gap:8px; padding:12px 20px; border-radius:8px; font-size:13px; font-weight:500; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,.15); animation:toastIn .3s ease; min-width:280px; max-width:420px; }
+        .toast-msg.success { background:#059669; }
+        .toast-msg.error   { background:#dc2626; }
+        .toast-msg.info    { background:#183e87; }
+        .toast-msg.warning { background:#d97706; }
+        @keyframes toastIn  { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes toastOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(40px)} }
+    </style>
+
     <!-- ===== ROW 1: UMPSA Header (matches landing page) ===== -->
     <header class="bg-white shadow-sm flex-shrink-0 h-16 px-6 sm:px-12 flex items-center gap-4 z-50">
         <a href="../index.html" class="flex items-center gap-4">
@@ -204,6 +216,7 @@
                                             <th class="px-6 pb-3 pt-4 font-medium text-left">Facility/Event</th>
                                             <th class="px-6 pb-3 pt-4 font-medium text-left">Booking Date</th>
                                             <th class="px-6 pb-3 pt-4 font-medium text-left">Event Date</th>
+                                            <th class="px-6 pb-3 pt-4 font-medium text-left">Status</th>
                                             <th id="booking-action-col" class="px-6 pb-3 pt-4 font-medium text-left">Action</th>
                                         </tr>
                                     </thead>
@@ -659,11 +672,23 @@
     <script>
         lucide.createIcons();
 
+        // ---- Toast Notification ----
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast-msg ${type}`;
+            const icons = { success: 'check-circle', error: 'alert-circle', info: 'info', warning: 'alert-triangle' };
+            toast.innerHTML = `<i data-lucide="${icons[type] || 'info'}" style="width:16px;height:16px;flex-shrink:0"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({ nodes: [toast] });
+            setTimeout(() => { toast.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
         // ---- Auth Check ----
         const currentUser = {
-            id: sessionStorage.getItem('user_id'),
-            email: sessionStorage.getItem('user_email'),
-            role: sessionStorage.getItem('user_role')
+            id: sessionStorage.getItem('user_id') || localStorage.getItem('user_id'),
+            email: sessionStorage.getItem('user_email') || localStorage.getItem('user_email'),
+            role: sessionStorage.getItem('user_role') || localStorage.getItem('user_role')
         };
 
         if (!currentUser.id) {
@@ -672,6 +697,7 @@
             document.querySelector('.text-white\\/90').textContent = currentUser.email;
             document.querySelector('.w-8.h-8.rounded-full').textContent = currentUser.email.charAt(0).toUpperCase();
         }
+
 
         // ---- App Shell: show/hide pages ----
         const pages = ['dashboard', 'search', 'report', 'announcement', 'booking-form', 'book-now-summary', 'confirm-booking'];
@@ -898,6 +924,7 @@
                     invoice_number,
                     created_at,
                     status,
+                    cancel_reason,
                     Facility ( name )
                 `)
                 .eq('user_id', currentUser.id);
@@ -944,7 +971,8 @@
                         participants: b.num_of_participant,
                         created_at: b.created_at,
                         dateRange: [b.date],
-                        status: b.status
+                        status: b.status,
+                        cancel_reason: b.cancel_reason
                     };
                     if (b.end_date && b.end_date !== b.date) {
                         grouped[inv].dateRange.push(b.end_date);
@@ -969,11 +997,21 @@
 
                 let actionHtml = '';
                 let isCancelled = g.status === 'Cancelled';
+                let statusHtml = '';
+                const baseStyle = "font-bold uppercase inline-block text-[10px]";
 
                 if (g.status === 'Confirmed') {
-                    actionHtml = `<td class="px-6 py-4"><button onclick="cancelBooking('${g.invoice}')" class="border border-gray-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-gray-600 px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase">CANCEL</button></td>`;
-                } else if (!isCancelled) {
-                    actionHtml = `<td class="px-6 py-4"><span class="text-xs font-medium text-gray-500">${g.status}</span></td>`;
+                    statusHtml = `<span class="${baseStyle} text-primary-teal">CONFIRMED</span>`;
+                    actionHtml = `<td class="px-6 py-4"><button onclick="cancelBooking('${g.invoice}')" class="border border-red-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-red-500 px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase">CANCEL</button></td>`;
+                } else if (g.status === 'Cancelled') {
+                    statusHtml = `<div class="flex flex-col gap-1 items-start"><span class="${baseStyle} text-red-500">CANCELLED</span>${g.cancel_reason ? `<span class="text-[9px] text-gray-400 max-w-[150px] truncate" title="${g.cancel_reason}">Reason: ${g.cancel_reason}</span>` : ''}</div>`;
+                    actionHtml = `<td class="px-6 py-4"></td>`;
+                } else if (g.status === 'Pending') {
+                    statusHtml = `<span class="${baseStyle} text-yellow-500">PENDING</span>`;
+                    actionHtml = `<td class="px-6 py-4"></td>`;
+                } else {
+                    statusHtml = `<span class="${baseStyle} text-gray-600">${g.status?.toUpperCase() || '-'}</span>`;
+                    actionHtml = `<td class="px-6 py-4"></td>`;
                 }
 
                 const row = document.createElement('tr');
@@ -984,7 +1022,8 @@
                     <td class="px-6 py-4 font-medium text-primary-teal text-xs">${g.facility}</td>
                     <td class="px-6 py-4 text-xs text-gray-600">${bookingDate}</td>
                     <td class="px-6 py-4 text-xs text-gray-600">${eventDateDisplay}</td>
-                    ${!isCancelled ? actionHtml : ''}
+                    <td class="px-6 flex flex-col justify-center py-4 h-full min-h-[72px]">${statusHtml}</td>
+                    ${actionHtml}
                 `;
                 container.appendChild(row);
             });
@@ -999,9 +1038,9 @@
                 .eq('invoice_number', invoice);
 
             if (error) {
-                alert('Failed to cancel booking: ' + error.message);
+                showToast('Failed to cancel booking: ' + error.message, 'error');
             } else {
-                alert('Booking cancelled successfully.');
+                showToast('Booking cancelled successfully.', 'success');
                 fetchBookings(); // Refresh the list
             }
         }
@@ -1061,7 +1100,7 @@
                 card.className = 'facility-card bg-white border border-gray-100 rounded-xl p-6 flex flex-col md:flex-row items-center gap-8 hover:shadow-md transition-all';
                 
                 const statusConfig = {
-                    'Available': { color: 'text-green-600', icon: 'check-circle' },
+                    'Available': { color: 'text-primary-teal', icon: 'check-circle' },
                     'In Maintenance': { color: 'text-yellow-600', icon: 'alert-triangle' }
                 };
                 const status = statusConfig[f.status] || { color: 'text-gray-500', icon: 'help-circle' };
@@ -1124,6 +1163,7 @@
 
         function handleLogout() {
             sessionStorage.clear();
+            localStorage.clear();
             window.location.href = '../LogInPage/LogInPage.html';
         }
 
@@ -1256,7 +1296,7 @@
 
             // Simple validation
             if (!startDate || !startTime || !endDate || !endTime || !event || !participants) {
-                alert('Please fill in all required fields marked with *');
+                showToast('Please fill in all required fields marked with *', 'warning');
                 return;
             }
 
@@ -1364,7 +1404,7 @@
                 );
 
                 if (slotsToBook.length === 0) {
-                    alert('Invalid time range selected.');
+                    showToast('Invalid time range selected.', 'warning');
                     btn.disabled = false;
                     btn.textContent = 'CONFIRM BOOKING';
                     return;
@@ -1398,7 +1438,7 @@
 
                 if (conflicts.length > 0) {
                     const conflictList = conflicts.slice(0, 3).map(c => `${c.date} ${c.time_slot}`).join('\n');
-                    alert(`Some slots in your range are unavailable:\n${conflictList}${conflicts.length > 3 ? '\n...' : ''}`);
+                    showToast(`Some slots in your range are unavailable: ${conflictList}${conflicts.length > 3 ? ' ...' : ''}`, 'warning');
                     btn.disabled = false;
                     btn.textContent = 'CONFIRM BOOKING';
                     return;
@@ -1425,11 +1465,11 @@
 
                 if (error) throw error;
 
-                alert('Booking successful!');
+                showToast('Booking successful!', 'success');
                 showPage('dashboard');
             } catch (err) {
                 console.error('Booking error:', err);
-                alert('Failed to submit booking: ' + err.message);
+                showToast('Failed to submit booking: ' + err.message, 'error');
                 btn.disabled = false;
                 btn.textContent = 'CONFIRM BOOKING';
             }
@@ -1450,7 +1490,7 @@
         }
 
         async function submitReport(btn) {
-            if (!currentUser.id) return alert('Please login first.');
+            if (!currentUser.id) { showToast('Please login first.', 'warning'); return; }
             
             const facilityId = document.getElementById('report-facility').value;
             const desc = document.getElementById('report-desc').value.trim();
@@ -1458,7 +1498,7 @@
             const file = fileInput.files[0];
 
             if (!facilityId || !desc || !file) {
-                return alert('Please fill all fields and upload a photo proof.');
+                showToast('Please fill all fields and upload a photo proof.', 'warning'); return;
             }
 
             btn.disabled = true;
@@ -1494,7 +1534,7 @@
 
                 if (insertError) throw insertError;
 
-                alert('Report submitted successfully!');
+                showToast('Report submitted successfully!', 'success');
                 
                 // Clear form
                 document.getElementById('report-facility').value = '';
@@ -1507,7 +1547,7 @@
                 
             } catch (err) {
                 console.error(err);
-                alert('Failed to submit report: ' + err.message);
+                showToast('Failed to submit report: ' + err.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
@@ -1547,11 +1587,12 @@
             reports.forEach(r => {
                 const reportDate = new Date(r.created_at).toLocaleDateString();
                 const facilityName = r.Facility ? r.Facility.name : 'Unknown';
+                const baseStyle = "font-bold uppercase inline-block text-[10px]";
                 let statusHtml = '';
                 if (r.status === 'Pending') {
-                    statusHtml = `<span class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-1 rounded">PENDING</span>`;
+                    statusHtml = `<span class="${baseStyle} text-yellow-500">PENDING</span>`;
                 } else {
-                    statusHtml = `<span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-1 rounded">RESOLVED</span>`;
+                    statusHtml = `<span class="${baseStyle} text-primary-teal">RESOLVED</span>`;
                 }
 
                 const tr = document.createElement('tr');
