@@ -114,7 +114,7 @@
     <div class="flex flex-1 overflow-hidden">
 
         <!-- ===== LEFT SIDEBAR ===== -->
-        <aside id="sidebar" class="flex flex-col bg-white border-r border-gray-100 overflow-y-auto" style="width:260px;">
+        <aside id="sidebar" class="flex flex-col bg-white border-r border-gray-100 overflow-hidden" style="width:260px;">
 
             <!-- Quick Search -->
             <div class="px-4 flex items-center border-b border-gray-100 flex-shrink-0" style="height:56px; background:#f9fafb;">
@@ -183,7 +183,7 @@
             </div>
 
             <!-- Main Scrollable Area -->
-            <main class="flex-1 overflow-y-auto bg-gray-50 pb-16">
+            <main class="flex-1 overflow-y-auto bg-gray-50 flex flex-col min-h-0">
 
                 <!-- ===================== PAGE: ADMIN DASHBOARD ===================== -->
                 <div id="page-admin-dashboard" class="p-3 sm:p-6">
@@ -661,10 +661,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="fixed bottom-0 left-0 w-full bg-[#183e87] text-white/70 text-xs px-6 py-3 z-40">
-        UMPSA Pekan - Sport Facility Booking System © 2026
-    </footer>
 
     <script>
         lucide.createIcons();
@@ -870,7 +866,7 @@
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-600">${userEmail}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-primary-teal font-medium">${facilityName}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-600">${bookingDate}</td>
-                    <td class="px-2 sm:px-6 py-2 sm:py-4">${statusHtml}</td>
+                    <td class="px-2 sm:px-6 py-2 sm:py-4 flex items-center min-h-[56px]">${statusHtml}</td>
                 `;
                 container.appendChild(tr);
             });
@@ -997,7 +993,7 @@
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-600">${g.userEmail}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-primary-teal text-xs">${g.facility}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-600">${eventDateDisplay}</td>
-                    <td class="px-2 sm:px-6 py-2 sm:py-4 flex flex-col justify-center">${statusHtml}</td>
+                    <td class="px-2 sm:px-6 py-2 sm:py-4 flex items-center justify-start min-h-[56px]">${statusHtml}</td>
                     ${!isCancelled ? actionHtml : ''}
                 `;
                 container.appendChild(tr);
@@ -1559,7 +1555,6 @@
                 showToast('Failed to delete announcement: ' + error.message, 'error');
             } else {
                 showToast('Announcement deleted successfully.', 'success');
-                fetchAdminAnnouncements();
             }
         }
 
@@ -1567,5 +1562,13 @@
         fetchRecentReports();
         fetchRecentBookings();
     </script>
+
+    <!-- Footer inside main -->
+        <footer class="w-full bg-[#183e87] text-white/70 text-xs px-6 py-3 mt-auto flex-shrink-0">
+            UMPSA Pekan - Sport Facility Booking System © 2026
+        </footer>
+    </main>
+</div>
+</div>
 </body>
 </html>
