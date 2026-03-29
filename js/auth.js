@@ -42,8 +42,16 @@ async function handleRegister() {
     if (!email || !pass || !confirm || !role) {
         return showError(errorEl, 'All fields are required.');
     }
-    if (!email.endsWith('@adab.umpsa.edu.my') && !email.endsWith('@umpsa.edu.my')) {
-        return showError(errorEl, 'Please use a valid UMPSA email address (@adab.umpsa.edu.my or @umpsa.edu.my).');
+    if (role === 'student') {
+        if (!email.endsWith('@adab.umpsa.edu.my')) {
+            return showError(errorEl, 'Student registration requires an @adab.umpsa.edu.my email address.');
+        }
+    } else if (role === 'staff') {
+        if (!email.endsWith('@umpsa.edu.my') || email.endsWith('@adab.umpsa.edu.my')) {
+            return showError(errorEl, 'Staff registration requires an @umpsa.edu.my email address.');
+        }
+    } else {
+        return showError(errorEl, 'Invalid role selected.');
     }
     if (pass.length < 8) {
         return showError(errorEl, 'Password must be at least 8 characters.');
