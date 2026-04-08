@@ -46,6 +46,9 @@
             opacity: 0.6;
         }
     </style>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabaseClient.js"></script>
 </head>
 
 <body class="font-sans antialiased text-gray-900 bg-white leading-relaxed">
@@ -92,7 +95,7 @@
                     </label>
                     <input type="text"
                         class="w-full text-[14px] sm:text-[15px] font-medium text-gray-900 border-none outline-none bg-transparent py-0.5"
-                        placeholder="Badminton, Futsal, Gym...">
+                        placeholder="Activities">
                 </div>
 
                 <!-- Date -->
@@ -156,51 +159,9 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Card 1: Badminton -->
-            <div
-                class="flex flex-col rounded-[14px] overflow-hidden bg-white shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group/card">
-                <div class="h-52 overflow-hidden relative">
-                    <img src="ImagesForFacilities/BADMINTON.jpg" alt="Badminton Court"
-                        class="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105">
-                </div>
-                <div class="p-5 flex items-center justify-between gap-4">
-                    <h3 class="font-bold text-primary-blue text-[17px] sm:text-[18px]">Badminton Court</h3>
-                    <a href="LogInPage/LogInPage.html" class="bg-primary-blue hover:bg-blue-900 text-white px-4 py-2 rounded-md font-bold text-[10px] sm:text-xs transition-colors uppercase whitespace-nowrap shadow-sm">
-                        Book Now
-                    </a>
-                </div>
-            </div>
-
-            <!-- Card 2: Futsal -->
-            <div
-                class="flex flex-col rounded-[14px] overflow-hidden bg-white shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group/card">
-                <div class="h-52 overflow-hidden relative">
-                    <img src="ImagesForFacilities/FUTSAL COURT.jpg" alt="Futsal"
-                        class="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105">
-                </div>
-                <div class="p-5 flex items-center justify-between gap-4">
-                    <h3 class="font-bold text-primary-blue text-[17px] sm:text-[18px]">Futsal</h3>
-                    <a href="LogInPage/LogInPage.html" class="bg-primary-blue hover:bg-blue-900 text-white px-4 py-2 rounded-md font-bold text-[10px] sm:text-xs transition-colors uppercase whitespace-nowrap shadow-sm">
-                        Book Now
-                    </a>
-                </div>
-            </div>
-
-            <!-- Card 3: Gym Male -->
-            <div
-                class="flex flex-col rounded-[14px] overflow-hidden bg-white shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group/card">
-                <div class="h-52 overflow-hidden relative">
-                    <img src="ImagesForFacilities/GYM PEKAN.jpg" alt="Gym Male"
-                        class="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105">
-                </div>
-                <div class="p-5 flex items-center justify-between gap-4">
-                    <h3 class="font-bold text-primary-blue text-[17px] sm:text-[18px]">Gym Male</h3>
-                    <a href="LogInPage/LogInPage.html" class="bg-primary-blue hover:bg-blue-900 text-white px-4 py-2 rounded-md font-bold text-[10px] sm:text-xs transition-colors uppercase whitespace-nowrap shadow-sm">
-                        Book Now
-                    </a>
-                </div>
-            </div>
+        <div id="facility-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Dynamic facility cards loaded from database -->
+            <div class="col-span-full text-center py-8 text-gray-400 text-sm">Loading facilities...</div>
         </div>
     </section>
 
@@ -214,7 +175,7 @@
                     <i data-lucide="calendar-check" class="text-primary-teal w-[24px] h-[24px]"
                         style="color: #009ca6;"></i>
                 </div>
-                <h3 class="font-bold text-primary-blue text-[15px]">Real-Time Availability</h3>
+                <h3 class="font-bold text-primary-blue text-[15px]">Real Time Availability</h3>
                 <p class="text-gray-600 text-[13px] max-w-[280px] leading-5">Instantly view and secure available sports
                     facilities at the UMPSA Pekan campus.</p>
             </div>
@@ -291,6 +252,41 @@
 
     <script>
         lucide.createIcons();
+
+        // Fetch and render facilities from database
+        async function loadFacilities() {
+            const grid = document.getElementById('facility-grid');
+            const { data: facilities, error } = await db
+                .from('Facility')
+                .select('facility_id, name, image_url, status')
+                .order('name', { ascending: true })
+                .limit(3);
+
+            if (error || !facilities || facilities.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400 text-sm">No facilities available at the moment.</div>';
+                return;
+            }
+
+            grid.innerHTML = facilities.map(f => {
+                const imgSrc = f.image_url || 'https://placehold.co/600x400/eeeeee/999999?text=No+Image';
+                return `
+                <div class="flex flex-col rounded-[14px] overflow-hidden bg-white shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group/card">
+                    <div class="h-52 overflow-hidden relative">
+                        <img src="${imgSrc}" alt="${f.name}"
+                            class="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                            onerror="this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image'">
+                    </div>
+                    <div class="p-5 flex items-center justify-between gap-4">
+                        <h3 class="font-bold text-primary-blue text-[17px] sm:text-[18px]">${f.name}</h3>
+                        <a href="LogInPage/LogInPage.html" class="bg-primary-blue hover:bg-blue-900 text-white px-4 py-2 rounded-md font-bold text-[10px] sm:text-xs transition-colors uppercase whitespace-nowrap shadow-sm">
+                            Book Now
+                        </a>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        loadFacilities();
     </script>
 </body>
 
