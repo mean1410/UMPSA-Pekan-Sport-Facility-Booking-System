@@ -1358,7 +1358,12 @@
             document.getElementById('edit-fac-location').value = facility.location;
             document.getElementById('edit-fac-capacity').value = facility.max_capacity;
             document.getElementById('edit-fac-image-file').value = '';
-            document.getElementById('edit-fac-image-preview').textContent = 'Click to upload image or drag and drop';
+            const previewEl = document.getElementById('edit-fac-image-preview');
+            if (facility.image_url) {
+                previewEl.textContent = '✅ Current image saved. Upload only to replace it.';
+            } else {
+                previewEl.textContent = 'Click to upload image or drag and drop';
+            }
             document.getElementById('edit-facility-modal').classList.remove('hidden');
             lucide.createIcons();
         }
@@ -1382,14 +1387,19 @@
 
             const imageUrl = await resolveFacilityImage('edit-fac-image-file');
 
-            const { error } = await db.from('Facility').update({
+            // Build update payload — only include image_url if a new image was uploaded
+            const updatePayload = {
                 name,
                 type,
                 status,
                 location,
                 max_capacity: capacity,
-                image_url: imageUrl
-            }).eq('facility_id', id);
+            };
+            if (imageUrl) {
+                updatePayload.image_url = imageUrl;
+            }
+
+            const { error } = await db.from('Facility').update(updatePayload).eq('facility_id', id);
 
             if (error) {
                 showToast('Failed to update facility: ' + error.message, 'error');
