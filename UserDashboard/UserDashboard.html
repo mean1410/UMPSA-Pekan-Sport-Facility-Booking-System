@@ -142,6 +142,7 @@
                     <div class="nav-bar absolute left-0 top-0 bottom-0 w-1 rounded-r"></div>
                     <i data-lucide="home" class="w-4 h-4 flex-shrink-0"></i>
                     <span class="text-sm font-medium">My Dashboard</span>
+                    <span id="badge-user-cancelled" class="hidden ml-auto min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none"></span>
                 </a>
                 <a href="#" data-nav="search" class="nav-link relative flex items-center gap-3 px-4 py-2.5 rounded-md overflow-hidden" onclick="showPage('search', this)">
                     <div class="nav-bar absolute left-0 top-0 bottom-0 w-1 rounded-r"></div>
@@ -250,8 +251,9 @@
                             <button id="subtab-confirmed" class="sub-tab active py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500" onclick="setSubTab('confirmed')">
                                 Confirmed
                             </button>
-                            <button id="subtab-cancelled" class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500" onclick="setSubTab('cancelled')">
+                            <button id="subtab-cancelled" class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 flex items-center gap-1.5" onclick="setSubTab('cancelled')">
                                 Cancelled
+                                <span id="badge-tab-cancelled" class="hidden min-w-[16px] h-[16px] bg-red-500 text-white text-[9px] font-bold rounded-full inline-flex items-center justify-center px-1 leading-none"></span>
                             </button>
                         </div>
                         <!-- Table -->
@@ -425,11 +427,17 @@
                     <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-3 sm:p-8">
                         <div class="flex items-center justify-between mb-3 sm:mb-6 flex-wrap gap-2">
                             <h3 class="text-primary-blue font-bold text-sm">Weekly Availability</h3>
-                            <div class="flex items-center gap-1.5">
-                                <select id="month-selector" onchange="onMonthSelectorChange(this.value)" class="bg-gray-50 border border-gray-200 rounded-md px-2 py-1.5 text-xs font-medium text-primary-blue outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all cursor-pointer">
-                                </select>
-                                <select id="year-selector" onchange="onYearSelectorChange(this.value)" class="bg-gray-50 border border-gray-200 rounded-md px-2 py-1.5 text-xs font-medium text-primary-blue outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all cursor-pointer">
-                                </select>
+                            <div class="flex items-end gap-3">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-primary-blue uppercase tracking-wide">Month</label>
+                                    <select id="month-selector" onchange="onMonthSelectorChange(this.value)" class="bg-gray-50 border border-gray-200 rounded-md px-2 py-1.5 text-xs font-medium text-primary-blue outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all cursor-pointer">
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-primary-blue uppercase tracking-wide">Year</label>
+                                    <select id="year-selector" onchange="onYearSelectorChange(this.value)" class="bg-gray-50 border border-gray-200 rounded-md px-2 py-1.5 text-xs font-medium text-primary-blue outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all cursor-pointer">
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -832,7 +840,20 @@
             // Close sidebar on mobile nav
             if (window.innerWidth < 1024) closeSidebar();
 
-            if (pageId === 'dashboard') fetchBookings();
+            if (pageId === 'dashboard') {
+                fetchBookings().then(() => {
+                    // If cancelled tab is active, mark admin-cancelled bookings as seen
+                    if (currentSubTab === 'cancelled') {
+                        const adminCancelledIds = allUserBookings.filter(b =>
+                            b.status === 'Cancelled' &&
+                            b.cancel_reason && b.cancel_reason !== 'null' &&
+                            b.cancel_reason !== 'undefined' && b.cancel_reason.trim() !== ''
+                        ).map(b => b.booking_id);
+                        localStorage.setItem('user_seen_cancelled_' + currentUser.id, JSON.stringify(adminCancelledIds));
+                        updateUserBadges();
+                    }
+                });
+            }
             if (pageId === 'search') fetchFacilities();
             
             if (pageId === 'booking-form' && extra) {
@@ -897,6 +918,14 @@
             return false;
         }
 
+        // ---- Date helper: avoids UTC timezone rollback from toISOString() ----
+        function toLocalDateStr(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
         // ---- Booking Page: Availability Grid ----
         async function renderAvailability(facilityId) {
             const grid = document.getElementById('availability-grid');
@@ -943,8 +972,8 @@
                 .from('Facility_Closure')
                 .select('date, time_slot')
                 .eq('facility_id', facilityId)
-                .gte('date', monday.toISOString().split('T')[0])
-                .lte('date', sunday.toISOString().split('T')[0]);
+                .gte('date', toLocalDateStr(monday))
+                .lte('date', toLocalDateStr(sunday));
 
             if (bError || cError) {
                 console.error('Error fetching availability:', bError || cError);
@@ -1005,7 +1034,7 @@
                 
                 for (let day = 0; day < 7; day++) {
                     const cellDate = weekDates[day];
-                    const dateStr = cellDate.toISOString().split('T')[0];
+                    const dateStr = toLocalDateStr(cellDate);
                     
                     let status = 'Available';
                     let statusClass = 'text-blue-400';
@@ -1086,6 +1115,15 @@
             if (tab === 'cancelled') {
                 actionCol.textContent = 'Reason';
                 if (emptyStateColspan) emptyStateColspan.setAttribute('colspan', '7');
+
+                // Mark admin-cancelled bookings as seen
+                const adminCancelledIds = allUserBookings.filter(b =>
+                    b.status === 'Cancelled' &&
+                    b.cancel_reason && b.cancel_reason !== 'null' &&
+                    b.cancel_reason !== 'undefined' && b.cancel_reason.trim() !== ''
+                ).map(b => b.booking_id);
+                localStorage.setItem('user_seen_cancelled_' + currentUser.id, JSON.stringify(adminCancelledIds));
+                updateUserBadges();
             } else {
                 actionCol.textContent = 'Action';
                 if (emptyStateColspan) emptyStateColspan.setAttribute('colspan', '7');
@@ -1119,7 +1157,44 @@
             }
 
             allUserBookings = data;
+            updateUserBadges();
             renderBookings();
+        }
+
+        // ---- User Notification Badges ----
+        function updateUserBadges() {
+            // Get seen IDs from localStorage (per user)
+            const seenCancelled = JSON.parse(localStorage.getItem('user_seen_cancelled_' + currentUser.id) || '[]');
+
+            // Count UNSEEN admin-cancelled bookings (those with cancel_reason)
+            const unseenCancelled = allUserBookings.filter(b =>
+                b.status === 'Cancelled' &&
+                b.cancel_reason && b.cancel_reason !== 'null' &&
+                b.cancel_reason !== 'undefined' && b.cancel_reason.trim() !== '' &&
+                !seenCancelled.includes(b.booking_id)
+            ).length;
+
+            // Sidebar badge
+            const badgeNav = document.getElementById('badge-user-cancelled');
+            if (badgeNav) {
+                if (unseenCancelled > 0) {
+                    badgeNav.textContent = unseenCancelled > 99 ? '99+' : unseenCancelled;
+                    badgeNav.classList.remove('hidden');
+                } else {
+                    badgeNav.classList.add('hidden');
+                }
+            }
+
+            // Cancelled sub-tab badge
+            const badgeTab = document.getElementById('badge-tab-cancelled');
+            if (badgeTab) {
+                if (unseenCancelled > 0) {
+                    badgeTab.textContent = unseenCancelled > 99 ? '99+' : unseenCancelled;
+                    badgeTab.classList.remove('hidden');
+                } else {
+                    badgeTab.classList.add('hidden');
+                }
+            }
         }
 
         function renderBookings() {
@@ -1788,7 +1863,7 @@
 
             let curr = new Date(start);
             while (curr <= end) {
-                const dateStr = curr.toISOString().split('T')[0];
+                const dateStr = toLocalDateStr(curr);
                 
                 let startIdx = 0;
                 let endIdx = timeSlotLabels.length - 1;
