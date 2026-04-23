@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -254,18 +254,34 @@
                             </button>
                         </div>
                         <!-- Sub Tabs -->
-                        <div class="flex px-3 sm:px-6 gap-4 sm:gap-8 border-b border-gray-100">
-                            <button id="subtab-confirmed" class="sub-tab active py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500" onclick="setSubTab('confirmed')">
+                        <div class="flex px-3 sm:px-6 gap-4 sm:gap-8 border-b border-gray-100 overflow-x-auto">
+                            <button id="subtab-all" class="sub-tab active py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap" onclick="setSubTab('all')">
+                                All
+                            </button>
+                            <button id="subtab-confirmed" class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap" onclick="setSubTab('confirmed')">
                                 Confirmed
                             </button>
-                            <button id="subtab-cancelled" class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 flex items-center gap-1.5" onclick="setSubTab('cancelled')">
+                            <button id="subtab-cancelled" class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap flex items-center gap-1.5" onclick="setSubTab('cancelled')">
                                 Cancelled
                                 <span id="badge-tab-cancelled" class="hidden min-w-[16px] h-[16px] bg-red-500 text-white text-[9px] font-bold rounded-full inline-flex items-center justify-center px-1 leading-none"></span>
                             </button>
+                            <button id="subtab-passed" class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap" onclick="setSubTab('passed')">
+                                Passed
+                            </button>
+                        </div>
+                        <!-- Search Bar -->
+                        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex-shrink-0 relative bg-white z-0">
+                            <div class="relative w-full">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </div>
+                                <input id="user-booking-search" type="text"
+                                    placeholder="Search invoices or facility..." oninput="renderBookings()"
+                                    class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md pl-9 pr-3 py-2 outline-none focus:bg-white focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                            </div>
                         </div>
                         <!-- Table -->
                         <div class="p-3 sm:p-6 flex-1 flex flex-col">
-                            <h3 id="booking-list-title" class="text-sm font-semibold text-primary-blue mb-3">List of confirmed booking</h3>
                             <div class="border border-gray-100 rounded-lg overflow-x-auto bg-white">
                                 <table class="w-full text-xs sm:text-sm text-left">
                                     <thead class="text-[9px] sm:text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100 bg-white">
@@ -891,24 +907,35 @@
                     selectedFacility = facility;
                     document.getElementById('booking-title').textContent = `Reserve ${facility.name}`;
                     
-                    // Reset Selection State
+                    // --- Full form reset ---
                     selectionStart = null;
                     selectionEnd = null;
                     currentWeekMonday = getMondayOfWeek(new Date());
                     selectedMonth = null;
+                    bookingData = {}; // Clear stale booking data
+
+                    // Clear text/number inputs
+                    const eventInput = document.getElementById('booking-event');
+                    if (eventInput) eventInput.value = '';
+                    const participantsInput = document.getElementById('booking-participants');
+                    if (participantsInput) participantsInput.value = '';
+
+                    // Reset time selects to first option
+                    const startTimeEl = document.getElementById('booking-start-time');
+                    if (startTimeEl) startTimeEl.selectedIndex = 0;
+                    const endTimeEl = document.getElementById('booking-end-time');
+                    if (endTimeEl) endTimeEl.selectedIndex = 0;
                     
                     // Set default dates to today
                     const today = new Date().toLocaleDateString('en-CA');
                     document.querySelectorAll('#page-booking-form input[type="date"]').forEach(input => {
                         input.value = today;
-                        input.min = today; // Restrict past dates in date picker
+                        input.min = today;
                     });
                     
-                    // Set max participants
-                    if (facility.max_capacity != null) {
-                        document.getElementById('booking-participants').placeholder = `Max ${facility.max_capacity}`;
-                    } else {
-                        document.getElementById('booking-participants').placeholder = 'No limit';
+                    // Set max participants placeholder
+                    if (participantsInput) {
+                        participantsInput.placeholder = facility.max_capacity != null ? `Max ${facility.max_capacity}` : 'No limit';
                     }
 
                     renderAvailability(extra);
@@ -1138,7 +1165,7 @@
         }
 
         // ---- Booking Tab Logic ----
-        let currentSubTab = 'confirmed';
+        let currentSubTab = 'all';
         let allUserBookings = [];
         let currentBookingPage = 1;
         const BOOKINGS_PER_PAGE = 5;
@@ -1151,25 +1178,30 @@
         function setSubTab(tab) {
             currentSubTab = tab;
             currentBookingPage = 1;
-            document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('#page-dashboard .sub-tab').forEach(el => el.classList.remove('active'));
             document.getElementById('subtab-' + tab).classList.add('active');
-            document.getElementById('booking-list-title').textContent = 'List of ' + tab + ' booking';
 
             const actionCol = document.getElementById('booking-action-col');
             const emptyStateColspan = document.querySelector('#booking-empty td');
             if (tab === 'cancelled') {
                 actionCol.textContent = 'Reason';
+                actionCol.style.display = '';
                 if (emptyStateColspan) emptyStateColspan.setAttribute('colspan', '7');
 
                 // Mark admin-cancelled bookings as seen
                 const adminCancelledIds = allUserBookings.filter(b =>
                     b.status === 'Cancelled' &&
-                    b.cancel_reason && b.cancel_reason !== 'null' &&
+                    b.cancel_reason &&
+                    b.cancel_reason !== 'null' &&
                     b.cancel_reason !== 'undefined' && b.cancel_reason.trim() !== ''
                 ).map(b => b.booking_id);
                 localStorage.setItem('user_seen_cancelled_' + currentUser.id, JSON.stringify(adminCancelledIds));
                 updateUserBadges();
+            } else if (tab === 'passed') {
+                actionCol.style.display = 'none';
+                if (emptyStateColspan) emptyStateColspan.setAttribute('colspan', '6');
             } else {
+                actionCol.style.display = '';
                 actionCol.textContent = 'Action';
                 if (emptyStateColspan) emptyStateColspan.setAttribute('colspan', '7');
             }
@@ -1251,7 +1283,38 @@
                 'confirmed': 'Confirmed',
                 'cancelled': 'Cancelled'
             };
-            const filtered = allUserBookings.filter(b => b.status === statusMap[currentSubTab]);
+            const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+
+            let filtered;
+            if (currentSubTab === 'all') {
+                filtered = allUserBookings;
+            } else if (currentSubTab === 'confirmed') {
+                // Only confirmed where event date hasn't passed (by day)
+                filtered = allUserBookings.filter(b => {
+                    if (b.status !== 'Confirmed') return false;
+                    const checkDate = b.end_date || b.date;
+                    return checkDate >= todayStr;
+                });
+            } else if (currentSubTab === 'passed') {
+                // Confirmed bookings where the event date has passed
+                filtered = allUserBookings.filter(b => {
+                    if (b.status !== 'Confirmed') return false;
+                    const checkDate = b.end_date || b.date;
+                    return checkDate < todayStr;
+                });
+            } else {
+                // cancelled
+                filtered = allUserBookings.filter(b => b.status === 'Cancelled');
+            }
+
+            // Search filtering
+            const searchVal = document.getElementById('user-booking-search')?.value.toLowerCase() || '';
+            if (searchVal) {
+                filtered = filtered.filter(b =>
+                    (b.invoice_number && b.invoice_number.toLowerCase().includes(searchVal)) ||
+                    (b.Facility && b.Facility.name && b.Facility.name.toLowerCase().includes(searchVal))
+                );
+            }
 
             // Clear existing data rows (keep the emptyEl in DOM!)
             container.querySelectorAll('.booking-row').forEach(row => row.remove());
@@ -1293,7 +1356,7 @@
                 }
             });
 
-            const groupedList = Object.values(grouped);
+            const groupedList = Object.values(grouped).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             const totalPages = Math.ceil(groupedList.length / BOOKINGS_PER_PAGE) || 1;
             
             if (currentBookingPage < 1) currentBookingPage = 1;
@@ -1316,7 +1379,17 @@
                 let statusHtml = '';
                 const baseStyle = "font-bold uppercase inline-block text-[10px]";
 
-                if (g.status === 'Confirmed') {
+                // Determine if this booking has passed (by day)
+                const isPassed = g.status === 'Confirmed' && (() => {
+                    const todayCheck = new Date().toLocaleDateString('en-CA');
+                    const lastDate = g.dateRange[g.dateRange.length - 1];
+                    return lastDate < todayCheck;
+                })();
+
+                if (isPassed || currentSubTab === 'passed') {
+                    statusHtml = `<span class="${baseStyle} text-gray-400">PASSED</span>`;
+                    actionHtml = ''; // No action column for passed
+                } else if (g.status === 'Confirmed') {
                     statusHtml = `<span class="${baseStyle} text-primary-teal">CONFIRMED</span>`;
                     actionHtml = `<td class="px-2 sm:px-6 py-2 sm:py-4"><button onclick="cancelBooking('${g.invoice}')" class="border border-red-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-red-500 px-3 py-1 rounded text-[10px] font-bold transition-all uppercase">CANCEL</button></td>`;
                 } else if (g.status === 'Cancelled') {
@@ -2124,6 +2197,14 @@
                 if (error) throw error;
 
                 showToast('Booking successful!', 'success');
+
+                // Full state reset so next booking starts clean
+                selectedFacility = null;
+                bookingData = {};
+                selectionStart = null;
+                selectionEnd = null;
+
+                fetchBookings(); // Refresh booking list
                 showPage('dashboard');
             } catch (err) {
                 console.error('Booking error:', err);
@@ -2250,12 +2331,15 @@
                 return;
             }
 
-            const totalPages = Math.ceil(allMyReports.length / REPORTS_PER_PAGE) || 1;
+            // Sort by date submitted, newest first
+            const sortedReports = [...allMyReports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            const totalPages = Math.ceil(sortedReports.length / REPORTS_PER_PAGE) || 1;
             if (currentReportPage < 1) currentReportPage = 1;
             if (currentReportPage > totalPages) currentReportPage = totalPages;
 
             const startIdx = (currentReportPage - 1) * REPORTS_PER_PAGE;
-            const paginated = allMyReports.slice(startIdx, startIdx + REPORTS_PER_PAGE);
+            const paginated = sortedReports.slice(startIdx, startIdx + REPORTS_PER_PAGE);
 
             renderUserPaginationControls('user-report-pagination', currentReportPage, totalPages, 'changeReportPage');
 

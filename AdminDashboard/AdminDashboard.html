@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -437,8 +437,13 @@
                             </div>
                             <div
                                 class="flex px-3 sm:px-6 gap-3 sm:gap-8 overflow-x-auto border-b border-gray-100 z-10 bg-white shadow-sm relative">
+                                <button id="admin-subtab-all"
+                                    class="sub-tab active py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap"
+                                    onclick="setAdminBookingsTab('all')">
+                                    All
+                                </button>
                                 <button id="admin-subtab-confirmed"
-                                    class="sub-tab active py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap flex items-center gap-1.5"
+                                    class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap flex items-center gap-1.5"
                                     onclick="setAdminBookingsTab('confirmed')">
                                     Confirmed
                                     <span id="badge-tab-confirmed" class="hidden min-w-[16px] h-[16px] bg-red-500 text-white text-[9px] font-bold rounded-full inline-flex items-center justify-center px-1 leading-none"></span>
@@ -447,6 +452,11 @@
                                     class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap"
                                     onclick="setAdminBookingsTab('cancelled')">
                                     Cancelled
+                                </button>
+                                <button id="admin-subtab-passed"
+                                    class="sub-tab py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap"
+                                    onclick="setAdminBookingsTab('passed')">
+                                    Passed
                                 </button>
                             </div>
                             <div
@@ -474,15 +484,16 @@
                                                 </th>
                                                 <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Facility
                                                 </th>
-                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Date</th>
+                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Booking Date</th>
+                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Event Date</th>
                                                 <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Status</th>
-                                                <th id="admin-action-col-bookings"
+                                                <th id="admin-booking-action-col"
                                                     class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="admin-booking-list-rows" class="divide-y divide-gray-50">
                                             <tr>
-                                                <td colspan="6"
+                                                <td colspan="7"
                                                     class="py-12 text-center text-sm text-gray-400 border-none">
                                                     Loading...</td>
                                             </tr>
@@ -1475,7 +1486,7 @@
 
         // ---- Manage Bookings Logic ----
         const ADMIN_BOOKINGS_PER_PAGE = 5;
-        let currentAdminBookingsTab = 'confirmed';
+        let currentAdminBookingsTab = 'all';
         let allAdminBookings = [];
         let currentAdminBookingPage = 1;
 
@@ -1494,8 +1505,12 @@
             if (actionCol) {
                 if (tab === 'cancelled') {
                     actionCol.textContent = 'Reason';
+                    actionCol.style.display = '';
+                } else if (tab === 'passed') {
+                    actionCol.style.display = 'none';
                 } else {
                     actionCol.textContent = 'Action';
+                    actionCol.style.display = '';
                 }
             }
 
@@ -1540,13 +1555,30 @@
             const container = document.getElementById('admin-booking-list-rows');
             container.innerHTML = '';
 
-            const statusMap = {
-                'confirmed': 'Confirmed',
-                'cancelled': 'Cancelled'
-            };
             const searchVal = document.getElementById('admin-booking-search')?.value.toLowerCase() || '';
-            const targetStatus = statusMap[currentAdminBookingsTab];
-            let filtered = allAdminBookings.filter(b => b.status === targetStatus);
+            const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+
+            let filtered;
+            if (currentAdminBookingsTab === 'all') {
+                filtered = allAdminBookings;
+            } else if (currentAdminBookingsTab === 'confirmed') {
+                // Only confirmed where event date hasn't passed (by day)
+                filtered = allAdminBookings.filter(b => {
+                    if (b.status !== 'Confirmed') return false;
+                    const checkDate = b.end_date || b.date;
+                    return checkDate >= todayStr;
+                });
+            } else if (currentAdminBookingsTab === 'passed') {
+                // Confirmed bookings where the event date has passed
+                filtered = allAdminBookings.filter(b => {
+                    if (b.status !== 'Confirmed') return false;
+                    const checkDate = b.end_date || b.date;
+                    return checkDate < todayStr;
+                });
+            } else {
+                // cancelled
+                filtered = allAdminBookings.filter(b => b.status === 'Cancelled');
+            }
 
             if (searchVal) {
                 filtered = filtered.filter(b =>
@@ -1557,7 +1589,7 @@
             }
 
             if (filtered.length === 0) {
-                container.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-sm text-gray-400 border-none">No records found.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-sm text-gray-400 border-none">No records found.</td></tr>`;
                 return;
             }
 
@@ -1582,7 +1614,8 @@
                 }
             });
 
-            const groupedList = Object.values(grouped);
+            // Sort grouped list by booking creation date, newest first
+            const groupedList = Object.values(grouped).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
             const totalPages = Math.ceil(groupedList.length / ADMIN_BOOKINGS_PER_PAGE) || 1;
             if (currentAdminBookingPage < 1) currentAdminBookingPage = 1;
@@ -1602,24 +1635,41 @@
                     ? `${g.dateRange[0]} - ${g.dateRange[g.dateRange.length - 1]}`
                     : g.dateRange[0];
 
-                let statusHtml = '';
-                if (g.status === 'Confirmed') statusHtml = `<span class="${baseStyle} text-primary-teal">CONFIRMED</span>`;
-                else if (g.status === 'Cancelled') statusHtml = `<div class="flex flex-col gap-1 items-start"><span class="${baseStyle} text-red-500">CANCELLED</span></div>`;
-                else if (g.status === 'Pending') statusHtml = `<span class="${baseStyle} text-yellow-500">PENDING</span>`;
-                else statusHtml = `<span class="${baseStyle} text-gray-600">${g.status?.toUpperCase() || '-'}</span>`;
+                // Determine if this booking has passed (by day)
+                const isPassed = g.status === 'Confirmed' && (() => {
+                    const todayCheck = new Date().toLocaleDateString('en-CA');
+                    const lastDate = g.dateRange[g.dateRange.length - 1];
+                    return lastDate < todayCheck;
+                })();
 
+                let statusHtml = '';
                 let actionHtml = '';
 
-                if (g.status === 'Confirmed') {
+                if (isPassed || currentAdminBookingsTab === 'passed') {
+                    statusHtml = `<span class="${baseStyle} text-gray-400">PASSED</span>`;
+                    actionHtml = ''; // No action for passed
+                } else if (g.status === 'Confirmed') {
+                    statusHtml = `<span class="${baseStyle} text-primary-teal">CONFIRMED</span>`;
                     actionHtml = `<td class="px-2 sm:px-6 py-2 sm:py-4"><button onclick="adminCancelBooking('${g.invoice}')" class="border border-red-200 hover:bg-[#e53e3e] hover:text-white hover:border-[#e53e3e] text-red-500 px-3 py-1 rounded text-[10px] font-bold transition-all uppercase">CANCEL</button></td>`;
                 } else if (g.status === 'Cancelled') {
+                    statusHtml = `<div class="flex flex-col gap-1 items-start"><span class="${baseStyle} text-red-500">CANCELLED</span></div>`;
                     if (g.cancel_reason && g.cancel_reason !== 'null' && g.cancel_reason !== 'undefined' && g.cancel_reason.trim() !== '') {
                         const safeReason = g.cancel_reason.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                         actionHtml = `<td class="px-2 sm:px-6 py-2 sm:py-4"><button onclick="viewCancelReason('${safeReason}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-[10px] font-bold transition-all uppercase shadow-sm">REASON</button></td>`;
                     } else {
                         actionHtml = `<td class="px-2 sm:px-6 py-2 sm:py-4"></td>`;
                     }
+                } else if (g.status === 'Pending') {
+                    statusHtml = `<span class="${baseStyle} text-yellow-500">PENDING</span>`;
+                    actionHtml = `<td class="px-2 sm:px-6 py-2 sm:py-4"></td>`;
+                } else {
+                    statusHtml = `<span class="${baseStyle} text-gray-600">${g.status?.toUpperCase() || '-'}</span>`;
+                    actionHtml = `<td class="px-2 sm:px-6 py-2 sm:py-4"></td>`;
                 }
+
+                const bookingDateDisplay = g.created_at
+                    ? new Date(g.created_at).toLocaleDateString('en-CA')
+                    : '-';
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50 transition-colors';
@@ -1627,6 +1677,7 @@
                     <td class="px-2 sm:px-6 py-2 sm:py-4 font-bold text-primary-blue text-xs">${g.invoice}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-600">${g.userEmail}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-primary-teal text-xs">${g.facility}</td>
+                    <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-500">${bookingDateDisplay}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-600">${eventDateDisplay}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4">${statusHtml}</td>
                     ${actionHtml}
@@ -2556,6 +2607,9 @@
                     return rId.includes(searchVal) || facName.includes(searchVal) || desc.includes(searchVal);
                 });
             }
+
+            // Sort by date submitted, newest first
+            filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
             const totalPages = Math.ceil(filtered.length / ADMIN_REPORTS_PER_PAGE) || 1;
             if (currentAdminReportPage < 1) currentAdminReportPage = 1;
