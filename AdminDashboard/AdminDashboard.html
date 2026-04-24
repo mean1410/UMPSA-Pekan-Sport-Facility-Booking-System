@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - UMPSA Pekan Sport Facility Booking System</title>
+    <title>Admin Dashboard</title>
     <!-- Auth Guard -->
     <script>
         const adminId = localStorage.getItem('admin_id') || sessionStorage.getItem('admin_id');
@@ -584,10 +584,10 @@
                             <!-- Generate Report Panel -->
                             <div id="generate-report-panel" class="p-3 sm:p-6 flex-1 flex-col bg-gray-50/30 hidden">
                                 <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-6 mb-6">
-                                    <h3 class="text-sm font-bold text-primary-blue mb-4 uppercase tracking-wide border-b border-gray-100 pb-2">Date Range (Optional)</h3>
+                                    <h3 class="text-sm font-bold text-primary-blue mb-4 border-b border-gray-100 pb-2">Date Range (Optional)</h3>
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                                         <div class="flex flex-col gap-1.5">
-                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Month</label>
+                                            <label class="text-[11px] font-bold text-gray-500">Month</label>
                                             <select id="report-month" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2 outline-none focus:border-primary-teal transition-all">
                                                 <option value="">(All Months)</option>
                                                 <option value="1">January</option><option value="2">February</option><option value="3">March</option>
@@ -597,21 +597,21 @@
                                             </select>
                                         </div>
                                         <div class="flex flex-col gap-1.5">
-                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Year</label>
+                                            <label class="text-[11px] font-bold text-gray-500">Year</label>
                                             <select id="report-year" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2 outline-none focus:border-primary-teal transition-all">
                                                 <option value="">(All Years)</option>
                                             </select>
                                         </div>
                                         <div class="flex flex-col gap-1.5">
-                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Specific Date</label>
+                                            <label class="text-[11px] font-bold text-gray-500">Specific Date</label>
                                             <input id="report-specific-date" type="date" class="h-[38px] w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2 outline-none focus:border-primary-teal transition-all">
                                             <span class="text-[10px] text-gray-400 mt-0.5">Overrides month/year if set</span>
                                         </div>
                                     </div>
-                                    <h3 class="text-sm font-bold text-primary-blue mb-4 uppercase tracking-wide border-b border-gray-100 pb-2">Advanced Filters (Optional)</h3>
+                                    <h3 class="text-sm font-bold text-primary-blue mb-4 border-b border-gray-100 pb-2">Advanced Filters (Optional)</h3>
                                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
                                         <div class="flex flex-col gap-1.5">
-                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">User Email</label>
+                                            <label class="text-[11px] font-bold text-gray-500">User Email</label>
                                             <div class="relative">
                                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="search" class="w-3 h-3"></i></div>
                                                 <input id="report-user-email" list="report-email-list" type="text" placeholder="Search email..." class="h-[38px] w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md pl-8 pr-3 py-2 outline-none focus:border-primary-teal transition-all">
@@ -619,7 +619,7 @@
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-1.5">
-                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Facility Type</label>
+                                            <label class="text-[11px] font-bold text-gray-500">Facility Type</label>
                                             <select id="report-facility-type" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-3 py-2 outline-none focus:border-primary-teal transition-all">
                                                 <option value="">(All Types)</option>
                                                 <option value="Indoor">Indoor</option>
@@ -627,13 +627,13 @@
                                             </select>
                                         </div>
                                         <div class="flex flex-col gap-1.5">
-                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Facility Name</label>
+                                            <label class="text-[11px] font-bold text-gray-500">Facility Name</label>
                                             <select id="report-facility-name" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-3 py-2 outline-none focus:border-primary-teal transition-all">
                                                 <option value="">(All Facilities)</option>
                                             </select>
                                         </div>
                                         <div class="flex flex-col gap-1.5">
-                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Time Slot</label>
+                                            <label class="text-[11px] font-bold text-gray-500">Time Slot</label>
                                             <select id="report-time-slot" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-3 py-2 outline-none focus:border-primary-teal transition-all">
                                                 <option value="">(All Slots)</option>
                                                 <option value="07:00 am - 08:30 am">07:00 am - 08:30 am</option>
@@ -650,7 +650,7 @@
                                     <div class="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 pt-6 gap-4">
                                         <div class="flex items-center gap-4 w-full sm:w-auto">
                                             <div class="flex flex-col gap-1.5">
-                                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Chart Type</label>
+                                                <label class="text-[10px] font-bold text-gray-500">Chart Type</label>
                                                 <select id="report-chart-type" class="bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-3 py-2 outline-none focus:border-primary-teal transition-all">
                                                     <option value="bar">Bar Chart</option>
                                                     <option value="pie">Pie Chart</option>
@@ -682,7 +682,7 @@
                                         <div class="relative w-full mb-8" style="height: 400px;"><canvas id="facilityUsageChart"></canvas></div>
                                         <div class="overflow-x-auto border border-gray-100 rounded-lg mb-4">
                                             <table class="w-full text-left text-sm text-gray-600">
-                                                <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
+                                                <thead class="text-xs text-gray-500 bg-gray-50 border-b border-gray-100">
                                                     <tr>
                                                         <th class="px-4 py-3">Facility</th><th class="px-4 py-3">Type</th>
                                                         <th class="px-4 py-3 text-center">Bookings</th><th class="px-4 py-3 text-center">Participants</th>
@@ -704,7 +704,7 @@
                                     <div class="border-b-2 border-primary-blue pb-4 mb-6 flex justify-between items-start">
                                         <div>
                                             <h1 class="text-2xl font-bold text-primary-blue mb-1" style="font-family:Arial,sans-serif;">UNIVERSITI MALAYSIA PAHANG AL-SULTAN ABDULLAH</h1>
-                                            <h2 class="text-xl font-bold text-gray-800 tracking-wider">FACILITY USAGE REPORT</h2>
+                                            <h2 class="text-xl font-bold text-gray-800">Facility Usage Report</h2>
                                         </div>
                                         <img src="../ImagesForHeaderandFooter/UMPSALogo.png" alt="UMPSA Logo" style="height:60px;object-fit:contain;">
                                     </div>
@@ -720,7 +720,7 @@
                                         <img id="pdf-chart-image" src="" alt="Chart" style="max-height:400px;width:auto;margin:0 auto;">
                                     </div>
                                     <div>
-                                        <h3 class="text-lg font-bold text-primary-blue mb-3 border-b border-gray-200 pb-2">BOOKING SUMMARY</h3>
+                                        <h3 class="text-lg font-bold text-primary-blue mb-3 border-b border-gray-200 pb-2">Booking Summary</h3>
                                         <table class="w-full text-left text-sm mb-6" style="border-collapse:collapse;">
                                             <thead class="bg-gray-100 text-gray-700 font-bold">
                                                 <tr>
@@ -883,7 +883,7 @@
         <!-- Fixed Global Footer -->
         <footer
             class="w-full bg-[#183e87] text-left text-white/70 text-[10px] sm:text-xs px-6 py-3 mt-auto flex-shrink-0 border-t border-teal-900/50 z-50 relative">
-            <div class="text-left w-full">UMPSA Pekan - Sport Facility Booking System ┬⌐ 2026</div>
+            <div class="text-left w-full">UMPSA Pekan - Sport Facility Booking System © 2026</div>
         </footer>
     </div>
 
