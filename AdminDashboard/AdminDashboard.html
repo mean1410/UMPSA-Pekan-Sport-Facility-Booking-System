@@ -20,6 +20,7 @@
     <script src="../js/supabaseClient.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -576,64 +577,164 @@
                             
                             <!-- Generate Report Panel -->
                             <div id="generate-report-panel" class="p-3 sm:p-6 flex-1 flex-col bg-gray-50/30 hidden">
-                                <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-6">
-                                    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 mb-6">
+                                <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-6 mb-6">
+                                    <h3 class="text-sm font-bold text-primary-blue mb-4 uppercase tracking-wide border-b border-gray-100 pb-2">Date Range (Optional)</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                                         <div class="flex flex-col gap-1.5">
-                                            <label
-                                                class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Month</label>
-                                            <select id="report-month"
-                                                class="bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2.5 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all">
-                                                <option value="1">January</option>
-                                                <option value="2">February</option>
-                                                <option value="3">March</option>
-                                                <option value="4">April</option>
-                                                <option value="5">May</option>
-                                                <option value="6">June</option>
-                                                <option value="7">July</option>
-                                                <option value="8">August</option>
-                                                <option value="9">September</option>
-                                                <option value="10">October</option>
-                                                <option value="11">November</option>
-                                                <option value="12">December</option>
+                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Month</label>
+                                            <select id="report-month" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2 outline-none focus:border-primary-teal transition-all">
+                                                <option value="">(All Months)</option>
+                                                <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                                                <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                                                <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                                                <option value="10">October</option><option value="11">November</option><option value="12">December</option>
                                             </select>
                                         </div>
                                         <div class="flex flex-col gap-1.5">
-                                            <label
-                                                class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Year</label>
-                                            <select id="report-year"
-                                                class="bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2.5 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all">
+                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Year</label>
+                                            <select id="report-year" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2 outline-none focus:border-primary-teal transition-all">
+                                                <option value="">(All Years)</option>
                                             </select>
                                         </div>
                                         <div class="flex flex-col gap-1.5">
-                                            <label
-                                                class="text-[11px] font-bold text-primary-blue uppercase tracking-wide">Chart
-                                                Type</label>
-                                            <select id="report-chart-type"
-                                                class="bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2.5 outline-none focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all">
-                                                <option value="bar">Bar Chart</option>
-                                                <option value="pie">Pie Chart</option>
-                                            </select>
+                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Specific Date</label>
+                                            <input id="report-specific-date" type="date" class="h-[38px] w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-4 py-2 outline-none focus:border-primary-teal transition-all">
+                                            <span class="text-[10px] text-gray-400 mt-0.5">Overrides month/year if set</span>
                                         </div>
-                                        <button onclick="generateFacilityUsageReport()"
-                                            class="bg-primary-blue hover:bg-blue-900 text-white px-6 py-2.5 rounded-md font-bold text-xs transition-colors uppercase shadow-sm whitespace-nowrap flex items-center gap-2">
-                                            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-                                            Generate Chart
-                                        </button>
                                     </div>
-
-                                    <!-- Chart Container -->
+                                    <h3 class="text-sm font-bold text-primary-blue mb-4 uppercase tracking-wide border-b border-gray-100 pb-2">Advanced Filters (Optional)</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                                        <div class="flex flex-col gap-1.5">
+                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">User Email</label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i data-lucide="search" class="w-3 h-3"></i></div>
+                                                <input id="report-user-email" list="report-email-list" type="text" placeholder="Search email..." class="h-[38px] w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md pl-8 pr-3 py-2 outline-none focus:border-primary-teal transition-all">
+                                                <datalist id="report-email-list"></datalist>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-1.5">
+                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Facility Type</label>
+                                            <select id="report-facility-type" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-3 py-2 outline-none focus:border-primary-teal transition-all">
+                                                <option value="">(All Types)</option>
+                                                <option value="Indoor">Indoor</option>
+                                                <option value="Outdoor">Outdoor</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex flex-col gap-1.5">
+                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Facility Name</label>
+                                            <select id="report-facility-name" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-3 py-2 outline-none focus:border-primary-teal transition-all">
+                                                <option value="">(All Facilities)</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex flex-col gap-1.5">
+                                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Time Slot</label>
+                                            <select id="report-time-slot" class="h-[38px] bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-3 py-2 outline-none focus:border-primary-teal transition-all">
+                                                <option value="">(All Slots)</option>
+                                                <option value="07:00 am - 08:30 am">07:00 am - 08:30 am</option>
+                                                <option value="08:30 am - 10:00 am">08:30 am - 10:00 am</option>
+                                                <option value="10:00 am - 11:30 am">10:00 am - 11:30 am</option>
+                                                <option value="11:30 am - 01:00 pm">11:30 am - 01:00 pm</option>
+                                                <option value="01:00 pm - 02:30 pm">01:00 pm - 02:30 pm</option>
+                                                <option value="02:30 pm - 04:00 pm">02:30 pm - 04:00 pm</option>
+                                                <option value="04:00 pm - 05:30 pm">04:00 pm - 05:30 pm</option>
+                                                <option value="05:30 pm - 07:00 pm">05:30 pm - 07:00 pm</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 pt-6 gap-4">
+                                        <div class="flex items-center gap-4 w-full sm:w-auto">
+                                            <div class="flex flex-col gap-1.5">
+                                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Chart Type</label>
+                                                <select id="report-chart-type" class="bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md px-3 py-2 outline-none focus:border-primary-teal transition-all">
+                                                    <option value="bar">Bar Chart</option>
+                                                    <option value="pie">Pie Chart</option>
+                                                </select>
+                                            </div>
+                                            <div class="flex items-center gap-2 mt-5">
+                                                <input type="checkbox" id="report-include-chart" checked class="w-4 h-4 text-primary-teal rounded border-gray-300 focus:ring-primary-teal">
+                                                <label for="report-include-chart" class="text-sm text-gray-600">Include chart in PDF</label>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                                            <button id="btn-print-report" onclick="printReport()" disabled class="px-4 py-2 border border-gray-200 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <i data-lucide="printer" class="w-4 h-4"></i> Print
+                                            </button>
+                                            <button id="btn-download-pdf" onclick="generatePDFReport()" disabled class="bg-primary-teal hover:bg-teal-600 text-white px-4 py-2 rounded-md font-semibold text-sm transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <i data-lucide="download" class="w-4 h-4"></i> PDF
+                                            </button>
+                                            <div class="flex flex-col items-center relative">
+                                                <button id="btn-generate-report" onclick="generateFacilityUsageReport()" disabled class="bg-primary-blue hover:bg-blue-900 text-white px-6 py-2 rounded-md font-bold text-sm transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Generate Report
+                                                </button>
+                                                <span id="report-filter-helper" class="text-[10px] text-gray-400 absolute -bottom-5 w-max">Select at least 1 filter</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Results Area -->
+                                <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-6 relative">
+                                    <div id="report-active-filters" class="flex flex-wrap gap-2 mb-6 hidden"></div>
                                     <div id="report-chart-container" class="hidden">
-                                        <h3 id="report-chart-title" class="text-base font-bold text-primary-blue mb-4">
-                                        </h3>
-                                        <div class="relative w-full" style="height: 400px;">
-                                            <canvas id="facilityUsageChart"></canvas>
+                                        <h3 id="report-chart-title" class="text-lg font-bold text-primary-blue mb-4 text-center"></h3>
+                                        <div class="relative w-full mb-8" style="height: 400px;"><canvas id="facilityUsageChart"></canvas></div>
+                                        <div class="overflow-x-auto border border-gray-100 rounded-lg mb-4">
+                                            <table class="w-full text-left text-sm text-gray-600">
+                                                <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
+                                                    <tr>
+                                                        <th class="px-4 py-3">Facility</th><th class="px-4 py-3">Type</th>
+                                                        <th class="px-4 py-3 text-center">Bookings</th><th class="px-4 py-3 text-center">Participants</th>
+                                                        <th class="px-4 py-3 text-center">Unique Users</th><th class="px-4 py-3">Top Slot</th><th class="px-4 py-3">Peak Day</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="report-summary-table-body" class="divide-y divide-gray-100"></tbody>
+                                            </table>
                                         </div>
                                         <p id="report-chart-summary" class="text-sm text-gray-500 mt-4 text-center"></p>
                                     </div>
                                     <div id="report-chart-empty" class="text-center py-16">
                                         <i data-lucide="bar-chart-3" class="w-12 h-12 text-gray-200 mx-auto mb-3"></i>
-                                        <p class="text-sm text-gray-400">Select a month and year, then click
-                                            <strong>Generate Chart</strong> to view facility usage.</p>
+                                        <p class="text-sm text-gray-400">Select filters and click <strong>Generate Report</strong> to view facility usage.</p>
+                                    </div>
+                                </div>
+                                <!-- Hidden PDF Template -->
+                                <div id="pdf-report-template" class="hidden bg-white text-black p-8" style="width:210mm;min-height:297mm;box-sizing:border-box;">
+                                    <div class="border-b-2 border-primary-blue pb-4 mb-6 flex justify-between items-start">
+                                        <div>
+                                            <h1 class="text-2xl font-bold text-primary-blue mb-1" style="font-family:Arial,sans-serif;">UNIVERSITI MALAYSIA PAHANG AL-SULTAN ABDULLAH</h1>
+                                            <h2 class="text-xl font-bold text-gray-800 tracking-wider">FACILITY USAGE REPORT</h2>
+                                        </div>
+                                        <img src="../ImagesForHeaderandFooter/UMPSALogo.png" alt="UMPSA Logo" style="height:60px;object-fit:contain;">
+                                    </div>
+                                    <div class="flex justify-between items-start mb-8 text-sm text-gray-700">
+                                        <div><p class="font-bold mb-2">Filters Applied:</p><ul id="pdf-filter-list" class="list-disc pl-5 space-y-1"></ul></div>
+                                        <div class="text-right">
+                                            <p><span class="font-bold">Generated By:</span> <span id="pdf-admin-email"></span></p>
+                                            <p><span class="font-bold">Date Generated:</span> <span id="pdf-timestamp"></span></p>
+                                        </div>
+                                    </div>
+                                    <div id="pdf-chart-section" class="mb-8 text-center hidden">
+                                        <h3 id="pdf-chart-title" class="text-lg font-bold text-primary-blue mb-4"></h3>
+                                        <img id="pdf-chart-image" src="" alt="Chart" style="max-height:400px;width:auto;margin:0 auto;">
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-primary-blue mb-3 border-b border-gray-200 pb-2">BOOKING SUMMARY</h3>
+                                        <table class="w-full text-left text-sm mb-6" style="border-collapse:collapse;">
+                                            <thead class="bg-gray-100 text-gray-700 font-bold">
+                                                <tr>
+                                                    <th class="border border-gray-300 px-3 py-2">Facility</th><th class="border border-gray-300 px-3 py-2">Type</th>
+                                                    <th class="border border-gray-300 px-3 py-2 text-center">Bookings</th><th class="border border-gray-300 px-3 py-2 text-center">Participants</th>
+                                                    <th class="border border-gray-300 px-3 py-2 text-center">Users</th><th class="border border-gray-300 px-3 py-2">Top Slot</th><th class="border border-gray-300 px-3 py-2">Peak Day</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="pdf-table-body" class="text-gray-800"></tbody>
+                                        </table>
+                                        <div class="flex justify-between items-center text-sm font-bold text-gray-800 bg-gray-50 p-4 border border-gray-200 rounded">
+                                            <span id="pdf-total-bookings">Total Bookings: 0</span>
+                                            <span id="pdf-total-participants">Total Participants: 0</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-12 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
+                                        UMPSA Pekan - Sport Facility Booking System &copy; <span id="pdf-copyright-year"></span>
                                     </div>
                                 </div>
                             </div>
@@ -779,7 +880,7 @@
         <!-- Fixed Global Footer -->
         <footer
             class="w-full bg-[#183e87] text-left text-white/70 text-[10px] sm:text-xs px-6 py-3 mt-auto flex-shrink-0 border-t border-teal-900/50 z-50 relative">
-            <div class="text-left w-full">UMPSA Pekan - Sport Facility Booking System © 2026</div>
+            <div class="text-left w-full">UMPSA Pekan - Sport Facility Booking System ┬⌐ 2026</div>
         </footer>
     </div>
 
@@ -1305,7 +1406,7 @@
                 fetchRecentBookings();
             } else if (pageId === 'manage-bookings') {
                 fetchAdminBookings().then(() => {
-                    // Default tab is 'confirmed' — mark as seen on page open
+                    // Default tab is 'confirmed' ΓÇö mark as seen on page open
                     if (currentAdminBookingsTab === 'confirmed') {
                         const confirmedIds = allAdminBookings.filter(b => b.status === 'Confirmed').map(b => b.booking_id);
                         localStorage.setItem('admin_seen_confirmed', JSON.stringify(confirmedIds));
@@ -1316,7 +1417,7 @@
                 fetchAdminFacilities();
             } else if (pageId === 'manage-report') {
                 fetchAdminAllReports().then(() => {
-                    // Default tab is 'Pending' — mark as seen on page open
+                    // Default tab is 'Pending' ΓÇö mark as seen on page open
                     if (currentAdminReportTab === 'Pending') {
                         const pendingIds = allAdminReports.filter(r => r.status === 'Pending').map(r => r.report_id);
                         localStorage.setItem('admin_seen_pending_reports', JSON.stringify(pendingIds));
@@ -1474,7 +1575,7 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50 transition-colors';
                 tr.innerHTML = `
-                    <td class="px-2 sm:px-6 py-2 sm:py-4 font-bold text-primary-blue text-xs">${b.invoice_number || '—'}</td>
+                    <td class="px-2 sm:px-6 py-2 sm:py-4 font-bold text-primary-blue text-xs">${b.invoice_number || 'ΓÇö'}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-600">${userEmail}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-primary-teal font-medium">${facilityName}</td>
                     <td class="px-2 sm:px-6 py-2 sm:py-4 text-xs text-gray-600">${bookingDate}</td>
@@ -1758,6 +1859,9 @@
                 if (generatePanel) {
                     generatePanel.classList.remove('hidden');
                     generatePanel.style.display = 'flex';
+                }
+                if (typeof populateReportFilters === 'function') {
+                    populateReportFilters();
                 }
                 lucide.createIcons();
                 return;
@@ -2432,7 +2536,7 @@
 
             const imageUrl = await resolveFacilityImage('edit-fac-image-file');
 
-            // Build update payload — only include image_url if a new image was uploaded
+            // Build update payload ΓÇö only include image_url if a new image was uploaded
             const updatePayload = {
                 name,
                 type,
@@ -2692,213 +2796,340 @@
         // ---- Generate Report Chart Logic ----
         let facilityUsageChartInstance = null;
 
-        // Populate the year dropdown on load
-        (function populateReportYears() {
+        window.populateReportFilters = async function() {
             const yearSelect = document.getElementById('report-year');
-            if (!yearSelect) return;
-            const currentYear = new Date().getFullYear();
-            for (let y = currentYear; y >= currentYear - 5; y--) {
-                const opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                yearSelect.appendChild(opt);
+            if (yearSelect && yearSelect.options.length <= 1) {
+                const currentYear = new Date().getFullYear();
+                for (let y = currentYear; y >= currentYear - 5; y--) {
+                    const opt = document.createElement('option');
+                    opt.value = y; opt.textContent = y;
+                    yearSelect.appendChild(opt);
+                }
             }
-            // Default to current month/year
-            const monthSelect = document.getElementById('report-month');
-            if (monthSelect) monthSelect.value = new Date().getMonth() + 1;
-        })();
+            const { data: facilities } = await db.from('Facility').select('name, type');
+            if (facilities) {
+                window.allFacilitiesData = facilities;
+                onFacilityTypeFilterChange();
+            }
+            const { data: users } = await db.from('User').select('email');
+            if (users) {
+                const datalist = document.getElementById('report-email-list');
+                if (datalist) {
+                    datalist.innerHTML = '';
+                    users.forEach(u => { const opt = document.createElement('option'); opt.value = u.email; datalist.appendChild(opt); });
+                }
+            }
+            const filters = ['report-month','report-year','report-specific-date','report-user-email','report-facility-type','report-facility-name','report-time-slot'];
+            filters.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.addEventListener('change', updateGenerateButtonState); el.addEventListener('input', updateGenerateButtonState); }
+            });
+            const typeSelect = document.getElementById('report-facility-type');
+            if (typeSelect) typeSelect.addEventListener('change', onFacilityTypeFilterChange);
+            updateGenerateButtonState();
+        };
+
+        window.onFacilityTypeFilterChange = function() {
+            const typeSelect = document.getElementById('report-facility-type');
+            const nameSelect = document.getElementById('report-facility-name');
+            if (!typeSelect || !nameSelect || !window.allFacilitiesData) return;
+            const selectedType = typeSelect.value;
+            const currentName = nameSelect.value;
+            nameSelect.innerHTML = '<option value="">(All Facilities)</option>';
+            const filteredFacilities = selectedType ? window.allFacilitiesData.filter(f => f.type === selectedType) : window.allFacilitiesData;
+            const uniqueNames = [...new Set(filteredFacilities.map(f => f.name))].sort();
+            let nameExists = false;
+            uniqueNames.forEach(name => {
+                const opt = document.createElement('option'); opt.value = name; opt.textContent = name;
+                nameSelect.appendChild(opt);
+                if (name === currentName) nameExists = true;
+            });
+            nameSelect.value = nameExists ? currentName : '';
+            updateGenerateButtonState();
+        };
+
+        window.hasActiveFilters = function() {
+            const month = document.getElementById('report-month')?.value;
+            const year = document.getElementById('report-year')?.value;
+            const specificDate = document.getElementById('report-specific-date')?.value;
+            const userEmail = document.getElementById('report-user-email')?.value.trim();
+            const facilityType = document.getElementById('report-facility-type')?.value;
+            const facilityName = document.getElementById('report-facility-name')?.value;
+            const timeSlot = document.getElementById('report-time-slot')?.value;
+            return !!(month || year || specificDate || userEmail || facilityType || facilityName || timeSlot);
+        };
+
+        window.updateGenerateButtonState = function() {
+            const btn = document.getElementById('btn-generate-report');
+            const helperText = document.getElementById('report-filter-helper');
+            if (!btn || !helperText) return;
+            if (hasActiveFilters()) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                helperText.classList.add('hidden');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                helperText.classList.remove('hidden');
+            }
+        };
+
+        window.clearReportFilter = function(filterId) {
+            const el = document.getElementById(filterId);
+            if (el) {
+                el.value = '';
+                if (filterId === 'report-facility-type') onFacilityTypeFilterChange();
+            }
+            updateGenerateButtonState();
+            if (hasActiveFilters()) {
+                generateFacilityUsageReport();
+            } else {
+                document.getElementById('report-active-filters').classList.add('hidden');
+                document.getElementById('report-chart-container').classList.add('hidden');
+                document.getElementById('report-chart-empty').classList.remove('hidden');
+                const btnPrint = document.getElementById('btn-print-report');
+                const btnPdf = document.getElementById('btn-download-pdf');
+                if (btnPrint) btnPrint.disabled = true;
+                if (btnPdf) btnPdf.disabled = true;
+            }
+        };
+
+        function doesBookingOverlapSlot(bookingSlot, gridSlot) {
+            if (!bookingSlot || !gridSlot) return false;
+            function parseTimeMins(timeStr) {
+                if (!timeStr) return 0;
+                timeStr = timeStr.trim().toLowerCase();
+                let [time, modifier] = timeStr.split(' ');
+                if (!modifier && timeStr.length > 5) { modifier = timeStr.slice(-2); time = timeStr.slice(0, -2).trim(); }
+                let [hours, minutes] = time.split(':');
+                hours = parseInt(hours, 10); minutes = parseInt(minutes, 10);
+                if (hours === 12) hours = 0;
+                if (modifier === 'pm') hours += 12;
+                return hours * 60 + minutes;
+            }
+            const [bStartStr, bEndStr] = bookingSlot.split('-').map(s => s.trim());
+            const [gStartStr, gEndStr] = gridSlot.split('-').map(s => s.trim());
+            if (!bStartStr || !bEndStr || !gStartStr || !gEndStr) return false;
+            return parseTimeMins(bStartStr) < parseTimeMins(gEndStr) && parseTimeMins(bEndStr) > parseTimeMins(gStartStr);
+        }
+
+        function buildFilterSummaryText() {
+            const monthVal = document.getElementById('report-month').value;
+            const yearVal = document.getElementById('report-year').value;
+            const specificDate = document.getElementById('report-specific-date').value;
+            const userEmail = document.getElementById('report-user-email').value.trim();
+            const facilityType = document.getElementById('report-facility-type').value;
+            const facilityName = document.getElementById('report-facility-name').value;
+            const timeSlot = document.getElementById('report-time-slot').value;
+            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            let parts = [];
+            if (userEmail) parts.push(`User: ${userEmail}`);
+            if (facilityName) parts.push(`Facility: ${facilityName}`);
+            else if (facilityType) parts.push(`Type: ${facilityType}`);
+            if (timeSlot) parts.push(`Slot: ${timeSlot}`);
+            if (specificDate) {
+                parts.push(`Date: ${new Date(specificDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`);
+            } else if (monthVal || yearVal) {
+                let dateStr = '';
+                if (monthVal) dateStr += monthNames[parseInt(monthVal) - 1] + ' ';
+                if (yearVal) dateStr += yearVal;
+                parts.push(`Month/Year: ${dateStr.trim()}`);
+            }
+            return parts.length === 0 ? "All Time" : parts.join(', ');
+        }
 
         window.generateFacilityUsageReport = async function () {
-            const month = parseInt(document.getElementById('report-month').value);
-            const year = parseInt(document.getElementById('report-year').value);
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            if (!hasActiveFilters()) return;
+            const month = document.getElementById('report-month').value;
+            const year = document.getElementById('report-year').value;
+            const specificDate = document.getElementById('report-specific-date').value;
+            const userEmail = document.getElementById('report-user-email').value.trim().toLowerCase();
+            const facilityType = document.getElementById('report-facility-type').value;
+            const facilityName = document.getElementById('report-facility-name').value;
+            const timeSlot = document.getElementById('report-time-slot').value;
+            const chartType = document.getElementById('report-chart-type').value;
 
-            // Build date range for filtering
-            const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-            const endMonth = month === 12 ? 1 : month + 1;
-            const endYear = month === 12 ? year + 1 : year;
-            const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-01`;
+            const activeFiltersContainer = document.getElementById('report-active-filters');
+            activeFiltersContainer.innerHTML = '';
+            activeFiltersContainer.classList.remove('hidden');
 
-            // Fetch confirmed bookings for the selected month
-            const { data: bookings, error } = await db
-                .from('Booking')
-                .select('facility_id, Facility ( name )')
-                .eq('status', 'Confirmed')
-                .gte('date', startDate)
-                .lt('date', endDate);
+            const addChip = (label, id) => {
+                const chip = document.createElement('div');
+                chip.className = 'inline-flex items-center gap-1.5 bg-blue-50 text-primary-blue px-3 py-1 rounded-full text-xs font-medium border border-blue-100';
+                chip.innerHTML = `<span>${label}</span><button onclick="clearReportFilter('${id}')" class="hover:bg-blue-100 rounded-full p-0.5 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button>`;
+                activeFiltersContainer.appendChild(chip);
+            };
+            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            if (specificDate) addChip(`Date: ${new Date(specificDate).toLocaleDateString()}`, 'report-specific-date');
+            else { if (month) addChip(`Month: ${monthNames[parseInt(month)-1]}`, 'report-month'); if (year) addChip(`Year: ${year}`, 'report-year'); }
+            if (userEmail) addChip(`User: ${userEmail}`, 'report-user-email');
+            if (facilityType) addChip(`Type: ${facilityType}`, 'report-facility-type');
+            if (facilityName) addChip(`Facility: ${facilityName}`, 'report-facility-name');
+            if (timeSlot) addChip(`Slot: ${timeSlot}`, 'report-time-slot');
+            lucide.createIcons();
 
-            if (error) {
-                showToast('Failed to fetch booking data: ' + error.message, 'error');
-                return;
+            let query = db.from('Booking').select('booking_id, facility_id, date, time_slot, user_id, num_of_participant, Facility ( name, type ), User ( email )').eq('status', 'Confirmed');
+            if (specificDate) {
+                query = query.eq('date', specificDate);
+            } else {
+                if (year && month) {
+                    const start = `${year}-${String(month).padStart(2,'0')}-01`;
+                    const endMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1;
+                    const endYear = parseInt(month) === 12 ? parseInt(year) + 1 : parseInt(year);
+                    query = query.gte('date', start).lt('date', `${endYear}-${String(endMonth).padStart(2,'0')}-01`);
+                } else if (year) {
+                    query = query.gte('date', `${year}-01-01`).lt('date', `${parseInt(year)+1}-01-01`);
+                } else if (month) {
+                    const currYear = new Date().getFullYear();
+                    const start = `${currYear}-${String(month).padStart(2,'0')}-01`;
+                    const endMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1;
+                    const endYear = parseInt(month) === 12 ? currYear + 1 : currYear;
+                    query = query.gte('date', start).lt('date', `${endYear}-${String(endMonth).padStart(2,'0')}-01`);
+                }
             }
 
-            // Count bookings per facility
-            const facilityCounts = {};
-            bookings.forEach(b => {
-                const name = b.Facility?.name || 'Unknown';
-                facilityCounts[name] = (facilityCounts[name] || 0) + 1;
-            });
+            const { data: rawBookings, error } = await query;
+            if (error) { showToast('Failed to fetch booking data: ' + error.message, 'error'); return; }
 
-            const labels = Object.keys(facilityCounts);
-            const values = Object.values(facilityCounts);
+            let filteredBookings = rawBookings || [];
+            if (userEmail) filteredBookings = filteredBookings.filter(b => b.User?.email?.toLowerCase().includes(userEmail));
+            if (facilityType) filteredBookings = filteredBookings.filter(b => b.Facility?.type === facilityType);
+            if (facilityName) filteredBookings = filteredBookings.filter(b => b.Facility?.name === facilityName);
+            if (timeSlot) filteredBookings = filteredBookings.filter(b => doesBookingOverlapSlot(b.time_slot, timeSlot));
 
             const chartContainer = document.getElementById('report-chart-container');
             const chartEmpty = document.getElementById('report-chart-empty');
             const chartTitle = document.getElementById('report-chart-title');
             const chartSummary = document.getElementById('report-chart-summary');
 
-            if (labels.length === 0) {
+            if (filteredBookings.length === 0) {
                 chartContainer.classList.add('hidden');
-                chartEmpty.innerHTML = `
-                    <i data-lucide="calendar-x" class="w-12 h-12 text-gray-200 mx-auto mb-3"></i>
-                    <p class="text-sm text-gray-400">No confirmed bookings found for <strong>${monthNames[month - 1]} ${year}</strong>.</p>
-                `;
+                chartEmpty.innerHTML = `<i data-lucide="calendar-x" class="w-12 h-12 text-gray-200 mx-auto mb-3"></i><p class="text-sm text-gray-400">No confirmed bookings found matching your filters.</p>`;
                 chartEmpty.classList.remove('hidden');
                 lucide.createIcons();
+                const btnPrint = document.getElementById('btn-print-report');
+                const btnPdf = document.getElementById('btn-download-pdf');
+                if (btnPrint) btnPrint.disabled = true;
+                if (btnPdf) btnPdf.disabled = true;
                 return;
             }
 
             chartEmpty.classList.add('hidden');
             chartContainer.classList.remove('hidden');
-            chartTitle.textContent = `Facility Usage — ${monthNames[month - 1]} ${year}`;
+            chartTitle.textContent = `Facility Usage — ${buildFilterSummaryText()}`;
 
-            const totalBookings = values.reduce((a, b) => a + b, 0);
-            const topFacility = labels[values.indexOf(Math.max(...values))];
-            chartSummary.textContent = `Total confirmed bookings: ${totalBookings} | Most used: ${topFacility} (${Math.max(...values)} bookings)`;
+            const groupBySlot = !!facilityName;
+            const groupCounts = {};
+            const facilityStats = {};
+            let totalBookingsAll = 0, totalParticipantsAll = 0;
 
-            // Destroy old chart if exists
-            if (facilityUsageChartInstance) {
-                facilityUsageChartInstance.destroy();
-            }
+            filteredBookings.forEach(b => {
+                totalBookingsAll++;
+                totalParticipantsAll += (b.num_of_participant || 0);
+                const fName = b.Facility?.name || 'Unknown';
+                const fType = b.Facility?.type || 'Unknown';
+                const slot = b.time_slot || 'Unknown';
+                const uEmail = b.User?.email || 'Unknown';
+                const groupKey = groupBySlot ? slot : fName;
+                groupCounts[groupKey] = (groupCounts[groupKey] || 0) + 1;
+                if (!facilityStats[fName]) facilityStats[fName] = { type: fType, bookings: 0, participants: 0, users: new Set(), slots: {}, days: {} };
+                facilityStats[fName].bookings++;
+                facilityStats[fName].participants += (b.num_of_participant || 0);
+                facilityStats[fName].users.add(uEmail);
+                facilityStats[fName].slots[slot] = (facilityStats[fName].slots[slot] || 0) + 1;
+                if (b.date) { const dayName = new Date(b.date).toLocaleDateString('en-GB', { weekday: 'short' }); facilityStats[fName].days[dayName] = (facilityStats[fName].days[dayName] || 0) + 1; }
+            });
 
+            const labels = Object.keys(groupCounts);
+            const values = Object.values(groupCounts);
+            chartSummary.textContent = `Total confirmed bookings: ${totalBookingsAll} | Total participants: ${totalParticipantsAll}`;
+
+            const tbody = document.getElementById('report-summary-table-body');
+            tbody.innerHTML = '';
+            Object.keys(facilityStats).forEach(fName => {
+                const stats = facilityStats[fName];
+                let topSlot = '-', maxSlotCount = 0;
+                for (const [s, c] of Object.entries(stats.slots)) { if (c > maxSlotCount) { maxSlotCount = c; topSlot = s; } }
+                let peakDay = '-', maxDayCount = 0;
+                for (const [d, c] of Object.entries(stats.days)) { if (c > maxDayCount) { maxDayCount = c; peakDay = d; } }
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="px-4 py-3 font-medium text-gray-900">${fName}</td><td class="px-4 py-3">${stats.type}</td><td class="px-4 py-3 text-center font-bold text-primary-teal">${stats.bookings}</td><td class="px-4 py-3 text-center">${stats.participants}</td><td class="px-4 py-3 text-center">${stats.users.size}</td><td class="px-4 py-3 text-xs">${topSlot}</td><td class="px-4 py-3 text-xs">${peakDay}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            if (facilityUsageChartInstance) facilityUsageChartInstance.destroy();
             const ctx = document.getElementById('facilityUsageChart').getContext('2d');
-            const chartType = document.getElementById('report-chart-type').value;
-
-            // Teal palette for pie slices
-            const tealPalette = [
-                'rgba(0, 156, 166, 0.9)',
-                'rgba(0, 128, 136, 0.85)',
-                'rgba(20, 184, 166, 0.85)',
-                'rgba(6, 182, 212, 0.85)',
-                'rgba(8, 145, 178, 0.85)',
-                'rgba(13, 148, 136, 0.85)',
-                'rgba(45, 212, 191, 0.8)',
-                'rgba(94, 234, 212, 0.8)',
-                'rgba(0, 188, 212, 0.8)',
-                'rgba(38, 166, 154, 0.8)'
-            ];
+            const tealPalette = ['rgba(0,156,166,0.9)','rgba(0,128,136,0.85)','rgba(20,184,166,0.85)','rgba(6,182,212,0.85)','rgba(8,145,178,0.85)','rgba(13,148,136,0.85)','rgba(45,212,191,0.8)','rgba(94,234,212,0.8)','rgba(0,188,212,0.8)','rgba(38,166,154,0.8)'];
             const tealBorders = tealPalette.map(c => c.replace(/0\.[0-9]+\)/, '1)'));
+            const xAxisLabel = groupBySlot ? 'Time Slot' : 'Facility';
 
             if (chartType === 'pie') {
-                facilityUsageChartInstance = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: values,
-                            backgroundColor: tealPalette.slice(0, labels.length),
-                            borderColor: tealBorders.slice(0, labels.length),
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: { family: 'Inter', size: 12, weight: '600' },
-                                    color: '#183e87',
-                                    padding: 16,
-                                    usePointStyle: true,
-                                    pointStyleWidth: 12
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: '#183e87',
-                                titleFont: { family: 'Inter', weight: 'bold', size: 13 },
-                                bodyFont: { family: 'Inter', size: 12 },
-                                padding: 12,
-                                cornerRadius: 8,
-                                callbacks: {
-                                    label: function (context) {
-                                        const pct = ((context.parsed / totalBookings) * 100).toFixed(1);
-                                        return ` ${context.label}: ${context.parsed} booking${context.parsed !== 1 ? 's' : ''} (${pct}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+                facilityUsageChartInstance = new Chart(ctx, { type: 'pie', data: { labels, datasets: [{ data: values, backgroundColor: tealPalette.slice(0, labels.length), borderColor: tealBorders.slice(0, labels.length), borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12, weight: '600' }, color: '#183e87', padding: 16, usePointStyle: true, pointStyleWidth: 12 } }, tooltip: { backgroundColor: '#183e87', titleFont: { family: 'Inter', weight: 'bold', size: 13 }, bodyFont: { family: 'Inter', size: 12 }, padding: 12, cornerRadius: 8, callbacks: { label: function(context) { const pct = ((context.parsed / totalBookingsAll) * 100).toFixed(1); return ` ${context.label}: ${context.parsed} booking${context.parsed !== 1 ? 's' : ''} (${pct}%)`; } } } } } });
             } else {
-                facilityUsageChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Total Bookings',
-                            data: values,
-                            backgroundColor: 'rgba(0, 156, 166, 0.85)',
-                            borderColor: 'rgba(0, 156, 166, 1)',
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            barPercentage: 0.6,
-                            categoryPercentage: 0.7
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: '#183e87',
-                                titleFont: { family: 'Inter', weight: 'bold', size: 13 },
-                                bodyFont: { family: 'Inter', size: 12 },
-                                padding: 12,
-                                cornerRadius: 8,
-                                callbacks: {
-                                    label: function (context) {
-                                        return ` ${context.parsed.y} booking${context.parsed.y !== 1 ? 's' : ''}`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1,
-                                    font: { family: 'Inter', size: 12 },
-                                    color: '#6b7280'
-                                },
-                                grid: { color: 'rgba(0,0,0,0.04)' },
-                                title: {
-                                    display: true,
-                                    text: 'Number of Bookings',
-                                    font: { family: 'Inter', size: 12, weight: 'bold' },
-                                    color: '#183e87'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: { family: 'Inter', size: 11, weight: '600' },
-                                    color: '#183e87'
-                                },
-                                grid: { display: false },
-                                title: {
-                                    display: true,
-                                    text: 'Facility',
-                                    font: { family: 'Inter', size: 12, weight: 'bold' },
-                                    color: '#183e87'
-                                }
-                            }
-                        }
-                    }
-                });
+                facilityUsageChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Total Bookings', data: values, backgroundColor: 'rgba(0,156,166,0.85)', borderColor: 'rgba(0,156,166,1)', borderWidth: 2, borderRadius: 8, barPercentage: 0.6, categoryPercentage: 0.7 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#183e87', titleFont: { family: 'Inter', weight: 'bold', size: 13 }, bodyFont: { family: 'Inter', size: 12 }, padding: 12, cornerRadius: 8, callbacks: { label: function(context) { return ` ${context.parsed.y} booking${context.parsed.y !== 1 ? 's' : ''}`; } } } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Inter', size: 12 }, color: '#6b7280' }, grid: { color: 'rgba(0,0,0,0.04)' }, title: { display: true, text: 'Number of Bookings', font: { family: 'Inter', size: 12, weight: 'bold' }, color: '#183e87' } }, x: { ticks: { font: { family: 'Inter', size: 11, weight: '600' }, color: '#183e87' }, grid: { display: false }, title: { display: true, text: xAxisLabel, font: { family: 'Inter', size: 12, weight: 'bold' }, color: '#183e87' } } } } });
             }
-        }
+
+            const btnPrint = document.getElementById('btn-print-report');
+            const btnPdf = document.getElementById('btn-download-pdf');
+            if (btnPrint) { btnPrint.disabled = false; btnPrint.classList.remove('opacity-50', 'cursor-not-allowed'); }
+            if (btnPdf) { btnPdf.disabled = false; btnPdf.classList.remove('opacity-50', 'cursor-not-allowed'); }
+        };
+
+        window.populatePDFTemplate = function() {
+            const adminEmailEl = document.getElementById('admin-email-display');
+            document.getElementById('pdf-admin-email').textContent = adminEmailEl ? adminEmailEl.textContent.trim() : 'Admin';
+            const now = new Date();
+            document.getElementById('pdf-timestamp').textContent = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('pdf-copyright-year').textContent = now.getFullYear();
+            const filterList = document.getElementById('pdf-filter-list');
+            filterList.innerHTML = '';
+            const chips = document.querySelectorAll('#report-active-filters > div > span');
+            if (chips.length > 0) { chips.forEach(chip => { const li = document.createElement('li'); li.textContent = chip.textContent; filterList.appendChild(li); }); }
+            else { const li = document.createElement('li'); li.textContent = 'None (All Bookings)'; filterList.appendChild(li); }
+            const includeChart = document.getElementById('report-include-chart').checked;
+            const pdfChartSection = document.getElementById('pdf-chart-section');
+            if (includeChart && facilityUsageChartInstance) {
+                const canvas = document.getElementById('facilityUsageChart');
+                const bgCanvas = document.createElement('canvas'); bgCanvas.width = canvas.width; bgCanvas.height = canvas.height;
+                const bgCtx = bgCanvas.getContext('2d'); bgCtx.fillStyle = '#ffffff'; bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height); bgCtx.drawImage(canvas, 0, 0);
+                document.getElementById('pdf-chart-image').src = bgCanvas.toDataURL('image/png', 1.0);
+                document.getElementById('pdf-chart-title').textContent = document.getElementById('report-chart-title').textContent;
+                pdfChartSection.classList.remove('hidden');
+            } else { pdfChartSection.classList.add('hidden'); }
+            const sourceTbody = document.getElementById('report-summary-table-body');
+            const pdfTbody = document.getElementById('pdf-table-body');
+            pdfTbody.innerHTML = '';
+            let totalBookings = 0, totalParticipants = 0;
+            Array.from(sourceTbody.children).forEach(tr => {
+                const tds = Array.from(tr.children);
+                const pdfTr = document.createElement('tr'); pdfTr.className = 'border-b border-gray-200';
+                tds.forEach((td, i) => { const pdfTd = document.createElement('td'); pdfTd.className = 'border border-gray-300 px-3 py-2 text-sm' + (i >= 2 && i <= 4 ? ' text-center' : ''); pdfTd.textContent = td.textContent; pdfTr.appendChild(pdfTd); });
+                totalBookings += parseInt(tds[2].textContent) || 0;
+                totalParticipants += parseInt(tds[3].textContent) || 0;
+                pdfTbody.appendChild(pdfTr);
+            });
+            document.getElementById('pdf-total-bookings').textContent = `Total Bookings: ${totalBookings}`;
+            document.getElementById('pdf-total-participants').textContent = `Total Participants: ${totalParticipants}`;
+        };
+
+        window.generatePDFReport = function() {
+            populatePDFTemplate();
+            const element = document.getElementById('pdf-report-template');
+            element.classList.remove('hidden'); element.style.display = 'block';
+            const summaryText = buildFilterSummaryText().replace(/[\/\\?%*:|"<>]/g, '-').substring(0, 30);
+            const filename = `Facility_Report_${summaryText.replace(/\s+/g, '_')}.pdf`;
+            const opt = { margin: [10,10,10,10], filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            setTimeout(() => { html2pdf().set(opt).from(element).save().then(() => { element.classList.add('hidden'); element.style.display = ''; }); }, 100);
+        };
+
+        window.printReport = function() {
+            populatePDFTemplate();
+            const element = document.getElementById('pdf-report-template');
+            document.body.innerHTML = element.innerHTML;
+            window.print();
+            location.reload();
+        };
+
 
         // ---- Manage Announcements Logic ----
         let allAdminAnnouncements = [];
