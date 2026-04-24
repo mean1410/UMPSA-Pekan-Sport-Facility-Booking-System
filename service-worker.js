@@ -1,4 +1,4 @@
-const CACHE_NAME = 'umpsa-sport-v1';
+const CACHE_NAME = 'umpsa-sport-v2';
 
 // Core assets to cache on install (app shell)
 const STATIC_ASSETS = [
