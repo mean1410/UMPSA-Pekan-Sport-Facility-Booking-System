@@ -3273,8 +3273,12 @@
             populatePDFTemplate();
             const element = document.getElementById('pdf-report-template');
             document.body.innerHTML = element.innerHTML;
-            window.print();
-            location.reload();
+            
+            // Give browser time to render the base64 chart image before printing
+            setTimeout(() => {
+                window.print();
+                location.reload();
+            }, 800);
         };
 
 
