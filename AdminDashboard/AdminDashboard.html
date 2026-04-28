@@ -561,11 +561,6 @@
                                     onclick="setAdminFacilitiesTab('In Maintenance')">
                                     In Maintenance
                                 </button>
-                                <button id="admin-subtab-generate-fac-rep"
-                                    class="sub-tab py-3 text-sm font-medium text-gray-500 whitespace-nowrap"
-                                    onclick="setAdminFacilitiesTab('Generate')">
-                                    Facility Report
-                                </button>
                             </div>
                             <div
                                 class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex-shrink-0 relative bg-white z-0">
@@ -590,6 +585,88 @@
                                 </div>
                             </div>
                             
+                        </div>
+                    </div>
+
+                    <!-- ===================== PAGE: MANAGE REPORT ===================== -->
+                    <div id="page-manage-report" class="p-3 sm:p-6 hidden">
+                        <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
+                            <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                            <span class="cursor-default">Home</span>
+                            <span>/</span>
+                            <span class="text-primary-blue font-medium">Manage Report</span>
+                        </div>
+                        <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col">
+                            <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden shadow-sm z-10">
+                                <button
+                                    class="main-tab active px-4 sm:px-8 py-3 sm:py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
+                                    Manage Report
+                                </button>
+                            </div>
+                            <div class="flex px-6 gap-8 border-b border-gray-100 z-10 bg-white shadow-sm relative">
+                                <button id="admin-subtab-pending-rep"
+                                    class="sub-tab active py-3 text-sm font-medium text-gray-500 flex items-center gap-1.5"
+                                    onclick="setAdminReportsTab('Pending')">
+                                    Pending Reports
+                                    <span id="badge-tab-pending-rep" class="hidden min-w-[16px] h-[16px] bg-red-500 text-white text-[9px] font-bold rounded-full inline-flex items-center justify-center px-1 leading-none"></span>
+                                </button>
+                                <button id="admin-subtab-resolved-rep"
+                                    class="sub-tab py-3 text-sm font-medium text-gray-500"
+                                    onclick="setAdminReportsTab('Resolved')">
+                                    Resolved Reports
+                                </button>
+                                <button id="admin-subtab-generate-fac-rep"
+                                    class="sub-tab py-3 text-sm font-medium text-gray-500 whitespace-nowrap"
+                                    onclick="setAdminReportsTab('Generate')">
+                                    Facility Report
+                                </button>
+                            </div>
+                            <div
+                                class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex-shrink-0 relative bg-white z-0">
+                                <div class="relative w-full">
+                                    <div
+                                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i data-lucide="search" class="w-4 h-4"></i>
+                                    </div>
+                                    <input id="admin-report-search" type="text"
+                                        placeholder="Search report ID, facility, or description..."
+                                        oninput="renderAdminReports()"
+                                        class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md pl-9 pr-3 py-2 outline-none focus:bg-white focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
+                                </div>
+                            </div>
+                            <div class="p-3 sm:p-6 flex-1 flex flex-col bg-gray-50/30">
+                                <div
+                                    class="border border-gray-100 rounded-lg overflow-x-auto bg-white relative shadow-sm">
+                                    <table class="w-full text-xs sm:text-sm text-left">
+                                        <thead
+                                            class="text-[9px] sm:text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100 bg-gray-50/50">
+                                            <tr>
+                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Report ID
+                                                </th>
+                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Facility
+                                                </th>
+                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Description
+                                                </th>
+                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Date</th>
+                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Proof</th>
+                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Status</th>
+                                                <th id="admin-action-col-reports"
+                                                    class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-report-list-rows" class="divide-y divide-gray-50">
+                                            <tr>
+                                                <td colspan="6"
+                                                    class="py-12 text-center text-sm text-gray-400 border-none">
+                                                    Loading...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Pagination -->
+                                <div class="mt-4 flex items-center justify-end gap-2 hidden"
+                                    id="admin-report-pagination"></div>
+                            </div>
                             <!-- Generate Report Panel -->
                             <div id="generate-report-panel" class="p-3 sm:p-6 flex-1 flex-col bg-gray-50/30 hidden">
                                 <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-6 mb-6">
@@ -789,83 +866,6 @@
                                         UMPSA Pekan - Sport Facility Booking System &copy; <span id="pdf-copyright-year"></span>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ===================== PAGE: MANAGE REPORT ===================== -->
-                    <div id="page-manage-report" class="p-3 sm:p-6 hidden">
-                        <div class="flex items-center gap-2 text-xs text-gray-400 mb-5">
-                            <i data-lucide="home" class="w-3.5 h-3.5"></i>
-                            <span class="cursor-default">Home</span>
-                            <span>/</span>
-                            <span class="text-primary-blue font-medium">Manage Report</span>
-                        </div>
-                        <div class="bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col">
-                            <div class="flex border-b border-gray-100 rounded-t-xl overflow-hidden shadow-sm z-10">
-                                <button
-                                    class="main-tab active px-4 sm:px-8 py-3 sm:py-3.5 text-sm font-medium text-gray-500 rounded-tl-xl cursor-default">
-                                    Manage Report
-                                </button>
-                            </div>
-                            <div class="flex px-6 gap-8 border-b border-gray-100 z-10 bg-white shadow-sm relative">
-                                <button id="admin-subtab-pending-rep"
-                                    class="sub-tab active py-3 text-sm font-medium text-gray-500 flex items-center gap-1.5"
-                                    onclick="setAdminReportsTab('Pending')">
-                                    Pending Reports
-                                    <span id="badge-tab-pending-rep" class="hidden min-w-[16px] h-[16px] bg-red-500 text-white text-[9px] font-bold rounded-full inline-flex items-center justify-center px-1 leading-none"></span>
-                                </button>
-                                <button id="admin-subtab-resolved-rep"
-                                    class="sub-tab py-3 text-sm font-medium text-gray-500"
-                                    onclick="setAdminReportsTab('Resolved')">
-                                    Resolved Reports
-                                </button>
-                            </div>
-                            <div
-                                class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex-shrink-0 relative bg-white z-0">
-                                <div class="relative w-full">
-                                    <div
-                                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <i data-lucide="search" class="w-4 h-4"></i>
-                                    </div>
-                                    <input id="admin-report-search" type="text"
-                                        placeholder="Search report ID, facility, or description..."
-                                        oninput="renderAdminReports()"
-                                        class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-md pl-9 pr-3 py-2 outline-none focus:bg-white focus:border-primary-teal focus:ring-1 focus:ring-primary-teal transition-all placeholder:text-gray-400">
-                                </div>
-                            </div>
-                            <div class="p-3 sm:p-6 flex-1 flex flex-col bg-gray-50/30">
-                                <div
-                                    class="border border-gray-100 rounded-lg overflow-x-auto bg-white relative shadow-sm">
-                                    <table class="w-full text-xs sm:text-sm text-left">
-                                        <thead
-                                            class="text-[9px] sm:text-[10px] text-gray-400 font-medium tracking-wide uppercase border-b border-gray-100 bg-gray-50/50">
-                                            <tr>
-                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Report ID
-                                                </th>
-                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Facility
-                                                </th>
-                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Description
-                                                </th>
-                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Date</th>
-                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Proof</th>
-                                                <th class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Status</th>
-                                                <th id="admin-action-col-reports"
-                                                    class="px-2 sm:px-6 py-2 sm:py-4 font-medium text-left">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="admin-report-list-rows" class="divide-y divide-gray-50">
-                                            <tr>
-                                                <td colspan="6"
-                                                    class="py-12 text-center text-sm text-gray-400 border-none">
-                                                    Loading...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <!-- Pagination -->
-                                <div class="mt-4 flex items-center justify-end gap-2 hidden"
-                                    id="admin-report-pagination"></div>
                             </div>
 
 
@@ -1908,35 +1908,9 @@
             document.querySelectorAll('#page-manage-facilities .sub-tab').forEach(el => el.classList.remove('active'));
             
             let tabId = tab === 'all' ? 'all-facilities' : 
-                        tab === 'Available' ? 'available-fac' : 
-                        tab === 'In Maintenance' ? 'maintenance-fac' : 'generate-fac-rep';
+                        tab === 'Available' ? 'available-fac' : 'maintenance-fac';
             document.getElementById('admin-subtab-' + tabId).classList.add('active');
             
-            const facilityTableArea = document.querySelector('#page-manage-facilities .p-3.sm\\:p-6.flex-1.flex.flex-col.bg-gray-50\\/30');
-            const searchBar = document.querySelector('#page-manage-facilities .px-3.sm\\:px-6.py-3.sm\\:py-4.border-b');
-            const generatePanel = document.getElementById('generate-report-panel');
-            
-            if (tab === 'Generate') {
-                if (facilityTableArea) facilityTableArea.style.display = 'none';
-                if (searchBar) searchBar.style.display = 'none';
-                if (generatePanel) {
-                    generatePanel.classList.remove('hidden');
-                    generatePanel.style.display = 'flex';
-                }
-                if (typeof populateReportFilters === 'function') {
-                    populateReportFilters();
-                }
-                lucide.createIcons();
-                return;
-            } else {
-                if (facilityTableArea) facilityTableArea.style.display = '';
-                if (searchBar) searchBar.style.display = '';
-                if (generatePanel) {
-                    generatePanel.classList.add('hidden');
-                    generatePanel.style.display = '';
-                }
-            }
-
             renderAdminFacilities();
         }
 
@@ -2658,15 +2632,35 @@
             document.querySelectorAll('#page-manage-report .sub-tab').forEach(el => el.classList.remove('active'));
 
             // Determine which sub-tab button to activate
-            let tabId = tab === 'Pending' ? 'pending-rep' : 'resolved-rep';
+            let tabId = tab === 'Pending' ? 'pending-rep' : 
+                        tab === 'Resolved' ? 'resolved-rep' : 'generate-fac-rep';
             document.getElementById('admin-subtab-' + tabId).classList.add('active');
 
             // Force table and search to be visible
             const reportTableArea = document.querySelector('#page-manage-report .p-3.sm\\:p-6.flex-1.flex.flex-col.bg-gray-50\\/30');
             const searchBar = document.querySelector('#page-manage-report .px-3.sm\\:px-6.py-3.sm\\:py-4.border-b');
+            const generatePanel = document.getElementById('generate-report-panel');
             
-            if (reportTableArea) reportTableArea.style.display = '';
-            if (searchBar) searchBar.style.display = '';
+            if (tab === 'Generate') {
+                if (reportTableArea) reportTableArea.style.display = 'none';
+                if (searchBar) searchBar.style.display = 'none';
+                if (generatePanel) {
+                    generatePanel.classList.remove('hidden');
+                    generatePanel.style.display = 'flex';
+                }
+                if (typeof populateReportFilters === 'function') {
+                    populateReportFilters();
+                }
+                lucide.createIcons();
+                return;
+            } else {
+                if (reportTableArea) reportTableArea.style.display = '';
+                if (searchBar) searchBar.style.display = '';
+                if (generatePanel) {
+                    generatePanel.classList.add('hidden');
+                    generatePanel.style.display = '';
+                }
+            }
 
             // Mark reports as seen per tab
             markAdminReportTabSeen(tab);
